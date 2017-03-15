@@ -121,12 +121,10 @@ PfifoFastQueueDisc::DoPeek (void) const
 
   for (uint32_t i = 0; i < GetNInternalQueues (); i++)
     {
-      if ((item = StaticCast<const QueueDiscItem> (GetInternalQueue (i)->Peek ())) != 0)
-        {
-          NS_LOG_LOGIC ("Peeked from band " << i << ": " << item);
-          NS_LOG_LOGIC ("Number packets band " << i << ": " << GetInternalQueue (i)->GetNPackets ());
-          return item;
-        }
+      item = StaticCast<const QueueDiscItem> (GetInternalQueue (i)->Peek ());
+      NS_LOG_LOGIC ("Peeked from band " << i << ": " << item);
+      NS_LOG_LOGIC ("Number packets band " << i << ": " << GetInternalQueue (i)->GetNPackets ());
+      return item;
     }
 
   NS_LOG_LOGIC ("Queue empty");

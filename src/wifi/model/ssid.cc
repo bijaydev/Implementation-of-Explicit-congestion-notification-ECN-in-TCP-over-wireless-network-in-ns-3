@@ -19,6 +19,7 @@
  */
 
 #include "ssid.h"
+#include "ns3/assert.h"
 
 namespace ns3 {
 

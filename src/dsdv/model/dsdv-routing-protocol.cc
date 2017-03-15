@@ -229,11 +229,11 @@ RoutingProtocol::DoDispose ()
 }
 
 void
-RoutingProtocol::PrintRoutingTable (Ptr<OutputStreamWrapper> stream, Time::Unit unit) const
+RoutingProtocol::PrintRoutingTable (Ptr<OutputStreamWrapper> stream) const
 {
   *stream->GetStream () << "Node: " << m_ipv4->GetObject<Node> ()->GetId ()
-                        << ", Time: " << Now().As (unit)
-                        << ", Local time: " << GetObject<Node> ()->GetLocalTime ().As (unit)
+                        << ", Time: " << Now().As (Time::S)
+                        << ", Local time: " << GetObject<Node> ()->GetLocalTime ().As (Time::S)
                         << ", DSDV Routing table" << std::endl;
 
   m_routingTable.Print (stream);

@@ -51,7 +51,7 @@ class Ipv4GlobalRouting;
 class GlobalRoutingLinkRecord
 {
 public:
-  friend class GlobalRoutingLSA; //!< Friend class.
+  friend class GlobalRoutingLSA;
 /**
  * @enum LinkType
  * @brief Enumeration of the possible types of Global Routing Link Records.
@@ -384,12 +384,10 @@ public:
 
 /**
  * @brief Return the LSType field of the LSA 
- * @returns The LS Type.
  */
   LSType GetLSType (void) const;
 /**
  * @brief Set the LS type field of the LSA
- * @param typ the LS Type.
  */
   void SetLSType (LSType typ);
 
@@ -435,7 +433,6 @@ public:
 /**
  * @brief For a Network LSA, set the Network Mask field that precedes
  * the list of attached routers.
- * @param mask the Network Mask field.
  */
   void SetNetworkLSANetworkMask (Ipv4Mask mask);
 
@@ -842,7 +839,6 @@ private:
    * in the L2 broadcast domain.
    *
    * \param ch a channel from the link
-   * \returns the NetDeviceContainer.
    */
   NetDeviceContainer FindAllNonBridgedDevicesOnLink (Ptr<Channel> ch) const;
 
@@ -897,14 +893,11 @@ private:
 
 /**
  * @brief Global Router copy construction is disallowed.
- * @param sr object to copy from.
  */
   GlobalRouter (GlobalRouter& sr);
 
 /**
  * @brief Global Router assignment operator is disallowed.
- * @param sr object to copy from.
- * @returns The object copied.
  */
   GlobalRouter& operator= (GlobalRouter& sr);
 };

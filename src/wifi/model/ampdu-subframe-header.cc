@@ -19,6 +19,7 @@
  */
 
 #include "ampdu-subframe-header.h"
+#include "ns3/address-utils.h"
 #include <iomanip>
 
 namespace ns3 {

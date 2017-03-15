@@ -284,13 +284,17 @@ Ipv6AddressGeneratorImpl::GetNetwork (
   const Ipv6Prefix prefix) const
 {
   NS_LOG_FUNCTION (this);
-  uint8_t nw[16] = { 0 };
+  uint8_t nw[16];
   uint32_t index = PrefixToIndex (prefix);
   uint32_t a = m_netTable[index].shift / 8;
   uint32_t b = m_netTable[index].shift % 8;
   for (uint32_t j = 0; j < 16 - a; ++j)
     {
       nw[j] = m_netTable[index].network[j + a];
+    }
+  for (uint32_t j = 16 - a; j < 16; ++j)
+    {
+      nw[j] = 0;
     }
   for (uint32_t j = 0; j < 15; j++)
     {
@@ -376,12 +380,16 @@ Ipv6AddressGeneratorImpl::GetAddress (const Ipv6Prefix prefix) const
 
   uint32_t index = PrefixToIndex (prefix);
 
-  uint8_t nw[16] = { 0 };
+  uint8_t nw[16];
   uint32_t a = m_netTable[index].shift / 8;
   uint32_t b = m_netTable[index].shift % 8;
   for (uint32_t j = 0; j < 16 - a; ++j)
     {
       nw[j] = m_netTable[index].network[j + a];
+    }
+  for (uint32_t j = 16 - a; j < 16; ++j)
+    {
+      nw[j] = 0;
     }
   for (uint32_t j = 0; j < 15; j++)
     {
@@ -404,12 +412,16 @@ Ipv6AddressGeneratorImpl::NextAddress (const Ipv6Prefix prefix)
 
   uint32_t index = PrefixToIndex (prefix);
 
-  uint8_t ad[16] = { 0 };
+  uint8_t ad[16];
   uint32_t a = m_netTable[index].shift / 8;
   uint32_t b = m_netTable[index].shift % 8;
   for (uint32_t j = 0; j < 16 - a; ++j)
     {
       ad[j] = m_netTable[index].network[j + a];
+    }
+  for (uint32_t j = 16 - a; j < 16; ++j)
+    {
+      ad[j] = 0;
     }
   for (uint32_t j = 0; j < 15; j++)
     {

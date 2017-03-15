@@ -22,8 +22,8 @@
 #ifndef WIFI_TX_VECTOR_H
 #define WIFI_TX_VECTOR_H
 
-#include "wifi-mode.h"
-#include "wifi-preamble.h"
+#include <ns3/wifi-mode.h>
+#include <ostream>
 
 namespace ns3 {
 
@@ -68,9 +68,7 @@ public:
    * \param mode WifiMode
    * \param powerLevel transmission power level
    * \param retries retries
-   * \param preamble preamble type
-   * \param guardInterval the guard interval duration in nanoseconds
-   * \param nTx the number of TX antennas
+   * \param shortGuardInterval enable or disable short guard interval
    * \param nss the number of spatial STBC streams (NSS)
    * \param ness the number of extension spatial streams (NESS)
    * \param channelWidth the channel width in MHz
@@ -80,12 +78,10 @@ public:
   WifiTxVector (WifiMode mode,
                 uint8_t powerLevel,
                 uint8_t retries,
-                WifiPreamble preamble,
-                uint16_t guardInterval,
-                uint8_t nTx,
+                bool shortGuardInterval,
                 uint8_t nss,
                 uint8_t ness,
-                uint8_t channelWidth,
+                uint32_t channelWidth,
                 bool aggregation,
                 bool stbc);
   /**
@@ -119,45 +115,25 @@ public:
    */
   void SetRetries (uint8_t retries);
   /**
-   * \returns the preamble type
-   */
-  WifiPreamble GetPreambleType (void) const;
-  /**
-   * Sets the preamble type
-   *
-   * \param preamble
-   */
-  void SetPreambleType (WifiPreamble preamble);
-  /**
    * \returns the channel width (in MHz)
    */
-  uint8_t GetChannelWidth (void) const;
+  uint32_t GetChannelWidth (void) const;
   /**
    * Sets the selected channelWidth (in MHz)
    *
    * \param channelWidth
    */
-  void SetChannelWidth (uint8_t channelWidth);
+  void SetChannelWidth (uint32_t channelWidth);
   /**
-   * \returns the guard interval duration (in nanoseconds)
+   * \returns if ShortGuardInterval is used or not
    */
-  uint16_t GetGuardInterval (void) const;
+  bool IsShortGuardInterval (void) const;
   /**
-  * Sets the guard interval duration (in nanoseconds)
+  * Sets if short gurad interval is being used
   *
-  * \param guardInterval the guard interval duration (in nanoseconds)
+  * \param guardinterval enable or disable short guard interval
   */
-  void SetGuardInterval (uint16_t guardInterval);
-  /**
-   * \returns the number of TX antennas
-   */
-  uint8_t GetNTx (void) const;
-  /**
-   * Sets the number of TX antennas
-   *
-   * \param nTx
-   */
-  void SetNTx (uint8_t nTx);
+  void SetShortGuardInterval (bool guardinterval);
   /**
    * \returns the number of Nss
    */
@@ -187,7 +163,7 @@ public:
   /**
    * Sets if PSDU contains A-MPDU.
    *
-   * \param aggregation whether the PSDU contains A-MPDU or not.
+   * \param aggregated whether the PSDU contains A-MPDU or not.
    */
   void SetAggregation (bool aggregation);
   /**
@@ -214,17 +190,15 @@ private:
                                  to PMD_TXPWRLVL.request */
   uint8_t  m_retries;            /**< The DATA_RETRIES/RTS_RETRIES parameter
                                  for Click radiotap information */
-  WifiPreamble m_preamble;       /**< preamble */
-  uint8_t m_channelWidth;        /**< channel width in MHz */
-  uint16_t m_guardInterval;      /**< guard interval duration in nanoseconds */
-  uint8_t  m_nTx;                /**< number of TX antennas */
-  uint8_t  m_nss;                /**< number of spatial streams */
-  uint8_t  m_ness;               /**< number of spatial streams in beamforming */
-  bool     m_aggregation;        /**< Flag whether the PSDU contains A-MPDU. */
+  uint32_t m_channelWidth;       /**< channel width in MHz */
+  bool     m_shortGuardInterval; /**< true if short GI is going to be used */
+  uint8_t  m_nss;                /**< number of streams */
+  uint8_t  m_ness;               /**< number of streams in beamforming */
+  bool     m_aggregation;        /** Flag whether the PSDU contains A-MPDU. */
   bool     m_stbc;               /**< STBC used or not */
 
-  bool     m_modeInitialized;         /**< Internal initialization flag */
-  bool     m_txPowerLevelInitialized; /**< Internal initialization flag */
+  bool     m_modeInitialized;         //*< Internal initialization flag */
+  bool     m_txPowerLevelInitialized; //*< Internal initialization flag */
 };
 
 /**

@@ -44,7 +44,6 @@ public:
 
   /**
    * Create a LrWpanLqiTag with the given LQI value.
-   * \param lqi The LQI.
    */
   LrWpanLqiTag (uint8_t lqi);
 

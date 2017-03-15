@@ -50,12 +50,18 @@
  * export NS_LOG=RateAdaptationDistance=level_info
  */
 
+#include <sstream>
+#include <fstream>
+#include <math.h>
+
 #include "ns3/core-module.h"
+#include "ns3/network-module.h"
 #include "ns3/internet-module.h"
 #include "ns3/mobility-module.h"
 #include "ns3/wifi-module.h"
 #include "ns3/applications-module.h"
 #include "ns3/stats-module.h"
+#include "ns3/flow-monitor-module.h"
 
 using namespace ns3;
 using namespace std;
@@ -187,7 +193,7 @@ int main (int argc, char *argv[])
   YansWifiChannelHelper wifiChannel = YansWifiChannelHelper::Default ();
   wifiPhy.SetChannel (wifiChannel.Create ());
 
-  wifiPhy.Set ("ShortGuardEnabled", BooleanValue (shortGuardInterval));
+  wifiPhy.Set("ShortGuardEnabled", BooleanValue(shortGuardInterval));
 
   NetDeviceContainer wifiApDevices;
   NetDeviceContainer wifiStaDevices;
@@ -208,7 +214,7 @@ int main (int argc, char *argv[])
         {
           wifi.SetStandard (WIFI_PHY_STANDARD_80211g);
         }
-      WifiMacHelper wifiMac;
+      NqosWifiMacHelper wifiMac = NqosWifiMacHelper::Default ();
 
       //Configure the STA node
       wifi.SetRemoteStationManager (staManager, "RtsCtsThreshold", UintegerValue (rtsThreshold));
@@ -237,7 +243,7 @@ int main (int argc, char *argv[])
           wifi.SetStandard (WIFI_PHY_STANDARD_80211n_5GHZ);
         }
 
-      WifiMacHelper wifiMac;
+      HtWifiMacHelper wifiMac = HtWifiMacHelper::Default ();
 
       //Configure the STA node
       wifi.SetRemoteStationManager (staManager, "RtsCtsThreshold", UintegerValue (rtsThreshold));
@@ -260,7 +266,7 @@ int main (int argc, char *argv[])
   else if (standard == "802.11ac")
     {
       wifi.SetStandard (WIFI_PHY_STANDARD_80211ac);
-      WifiMacHelper wifiMac;
+      VhtWifiMacHelper wifiMac = VhtWifiMacHelper::Default ();
 
       //Configure the STA node
       wifi.SetRemoteStationManager (staManager, "RtsCtsThreshold", UintegerValue (rtsThreshold));

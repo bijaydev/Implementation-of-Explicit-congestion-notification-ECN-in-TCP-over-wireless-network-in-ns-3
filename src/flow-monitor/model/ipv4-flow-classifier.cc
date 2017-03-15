@@ -186,15 +186,17 @@ Ipv4FlowClassifier::FindFlow (FlowId flowId) const
 }
 
 void
-Ipv4FlowClassifier::SerializeToXmlStream (std::ostream &os, uint16_t indent) const
+Ipv4FlowClassifier::SerializeToXmlStream (std::ostream &os, int indent) const
 {
-  Indent (os, indent); os << "<Ipv4FlowClassifier>\n";
+#define INDENT(level) for (int __xpto = 0; __xpto < level; __xpto++) os << ' ';
+
+  INDENT (indent); os << "<Ipv4FlowClassifier>\n";
 
   indent += 2;
   for (std::map<FiveTuple, FlowId>::const_iterator
        iter = m_flowMap.begin (); iter != m_flowMap.end (); iter++)
     {
-      Indent (os, indent);
+      INDENT (indent);
       os << "<Flow flowId=\"" << iter->second << "\""
          << " sourceAddress=\"" << iter->first.sourceAddress << "\""
          << " destinationAddress=\"" << iter->first.destinationAddress << "\""
@@ -205,7 +207,9 @@ Ipv4FlowClassifier::SerializeToXmlStream (std::ostream &os, uint16_t indent) con
     }
 
   indent -= 2;
-  Indent (os, indent); os << "</Ipv4FlowClassifier>\n";
+  INDENT (indent); os << "</Ipv4FlowClassifier>\n";
+
+#undef INDENT
 }
 
 

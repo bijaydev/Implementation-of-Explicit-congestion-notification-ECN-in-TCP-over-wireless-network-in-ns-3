@@ -225,10 +225,15 @@ uint32_t Ipv6L3Protocol::AddIpv6Interface (Ptr<Ipv6Interface> interface)
 Ptr<Ipv6Interface> Ipv6L3Protocol::GetInterface (uint32_t index) const
 {
   NS_LOG_FUNCTION (this << index);
+  uint32_t tmp = 0;
 
-  if (index < m_interfaces.size ())
+  for (Ipv6InterfaceList::const_iterator it = m_interfaces.begin (); it != m_interfaces.end (); it++)
     {
-      return m_interfaces[index];
+      if (index == tmp)
+        {
+          return *it;
+        }
+      tmp++;
     }
   return 0;
 }

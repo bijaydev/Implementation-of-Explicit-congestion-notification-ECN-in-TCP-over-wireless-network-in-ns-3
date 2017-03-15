@@ -97,8 +97,8 @@ public:
   virtual void SetLteFfrSapProvider (LteFfrSapProvider* s);
   virtual LteFfrSapUser* GetLteFfrSapUser ();
 
-  friend class MemberCschedSapProvider<PfFfMacScheduler>;
-  friend class MemberSchedSapProvider<PfFfMacScheduler>;
+  friend class PfSchedulerMemberCschedSapProvider;
+  friend class PfSchedulerMemberSchedSapProvider;
 
   void TransmissionModeConfigurationUpdate (uint16_t rnti, uint8_t txMode);
 
@@ -148,7 +148,7 @@ private:
 
   int GetRbgSize (int dlbandwidth);
 
-  unsigned int LcActivePerFlow (uint16_t rnti);
+  int LcActivePerFlow (uint16_t rnti);
 
   double EstimateUlSinr (uint16_t rnti, uint16_t rb);
 

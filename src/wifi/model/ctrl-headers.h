@@ -52,16 +52,12 @@ class CtrlBAckRequestHeader : public Header
 public:
   CtrlBAckRequestHeader ();
   ~CtrlBAckRequestHeader ();
-  /**
-   * \brief Get the type ID.
-   * \return the object TypeId
-   */
   static TypeId GetTypeId (void);
-  TypeId GetInstanceTypeId (void) const;
-  void Print (std::ostream &os) const;
-  uint32_t GetSerializedSize (void) const;
-  void Serialize (Buffer::Iterator start) const;
-  uint32_t Deserialize (Buffer::Iterator start);
+  virtual TypeId GetInstanceTypeId (void) const;
+  virtual void Print (std::ostream &os) const;
+  virtual uint32_t GetSerializedSize (void) const;
+  virtual void Serialize (Buffer::Iterator start) const;
+  virtual uint32_t Deserialize (Buffer::Iterator start);
 
   /**
    * Enable or disable HT immediate ACK.
@@ -74,7 +70,7 @@ public:
    *
    * \param type
    */
-  void SetType (BlockAckType type);
+  void SetType (enum BlockAckType type);
   /**
    * Set Traffic ID (TID).
    *
@@ -167,11 +163,11 @@ private:
    * For now only non HT immediate block ack is implemented so this field
    * is here only for a future implementation of HT delayed variant.
    */
-  bool m_barAckPolicy; ///< bar ack policy
-  bool m_multiTid; ///< multi TID
-  bool m_compressed; ///< compressed
-  uint16_t m_tidInfo; ///< TID info
-  uint16_t m_startingSeq; ///< starting seq
+  bool m_barAckPolicy;
+  bool m_multiTid;
+  bool m_compressed;
+  uint16_t m_tidInfo;
+  uint16_t m_startingSeq;
 };
 
 
@@ -192,16 +188,12 @@ class CtrlBAckResponseHeader : public Header
 public:
   CtrlBAckResponseHeader ();
   ~CtrlBAckResponseHeader ();
-  /**
-   * \brief Get the type ID.
-   * \return the object TypeId
-   */
   static TypeId GetTypeId (void);
-  TypeId GetInstanceTypeId (void) const;
-  void Print (std::ostream &os) const;
-  uint32_t GetSerializedSize (void) const;
-  void Serialize (Buffer::Iterator start) const;
-  uint32_t Deserialize (Buffer::Iterator start);
+  virtual TypeId GetInstanceTypeId (void) const;
+  virtual void Print (std::ostream &os) const;
+  virtual uint32_t GetSerializedSize (void) const;
+  virtual void Serialize (Buffer::Iterator start) const;
+  virtual uint32_t Deserialize (Buffer::Iterator start);
 
   /**
    * Enable or disable HT immediate ACK.
@@ -214,7 +206,7 @@ public:
    *
    * \param type
    */
-  void SetType (BlockAckType type);
+  void SetType (enum BlockAckType type);
   /**
    * Set Traffic ID (TID).
    *
@@ -400,17 +392,17 @@ private:
    * For now only non HT immediate block ack is implemented so this field
    * is here only for a future implementation of HT delayed variant.
    */
-  bool m_baAckPolicy; ///< BA ack policy
-  bool m_multiTid; ///< multi TID
-  bool m_compressed; ///< compressed
-  uint16_t m_tidInfo; ///< TID info
-  uint16_t m_startingSeq; ///< starting seq
+  bool m_baAckPolicy;
+  bool m_multiTid;
+  bool m_compressed;
+  uint16_t m_tidInfo;
+  uint16_t m_startingSeq;
 
   union
   {
     uint16_t m_bitmap[64];
     uint64_t m_compressedBitmap;
-  } bitmap; ///< bitmap union type
+  } bitmap;
 };
 
 } //namespace ns3

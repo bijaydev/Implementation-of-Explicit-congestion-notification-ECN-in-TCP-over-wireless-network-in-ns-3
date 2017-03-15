@@ -79,14 +79,14 @@ void Ipv6StaticRouting::SetIpv6 (Ptr<Ipv6> ipv6)
 
 // Formatted like output of "route -n" command
 void
-Ipv6StaticRouting::PrintRoutingTable (Ptr<OutputStreamWrapper> stream, Time::Unit unit) const
+Ipv6StaticRouting::PrintRoutingTable (Ptr<OutputStreamWrapper> stream) const
 {
   NS_LOG_FUNCTION (this << stream);
   std::ostream* os = stream->GetStream ();
 
   *os << "Node: " << m_ipv6->GetObject<Node> ()->GetId ()
-      << ", Time: " << Now().As (unit)
-      << ", Local time: " << GetObject<Node> ()->GetLocalTime ().As (unit)
+      << ", Time: " << Now().As (Time::S)
+      << ", Local time: " << GetObject<Node> ()->GetLocalTime ().As (Time::S)
       << ", Ipv6StaticRouting table" << std::endl;
 
   if (GetNRoutes () > 0)

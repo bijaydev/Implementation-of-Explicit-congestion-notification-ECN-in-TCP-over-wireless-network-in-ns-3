@@ -368,7 +368,6 @@ public:
 
     /**
      * \brief Set the Timeout EventId.
-     * \param event The event.
      */
     void SetTimeoutEventId (EventId event);
 
@@ -414,7 +413,6 @@ private:
 
   /**
    * \brief Set the Timeout EventId.
-   * \param event The event.
    */
   void SetTimeoutEventId (EventId event);
 

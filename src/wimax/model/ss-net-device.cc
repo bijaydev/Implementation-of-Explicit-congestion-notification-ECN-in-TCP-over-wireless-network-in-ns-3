@@ -21,6 +21,7 @@
  */
 
 #include "ns3/simulator.h"
+#include "ns3/drop-tail-queue.h"
 #include "ns3/node.h"
 #include "ss-net-device.h"
 #include "wimax-phy.h"

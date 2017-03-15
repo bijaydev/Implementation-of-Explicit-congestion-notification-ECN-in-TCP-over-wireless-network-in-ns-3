@@ -23,8 +23,11 @@
 #ifndef WIFI_MAC_QUEUE_H
 #define WIFI_MAC_QUEUE_H
 
-#include "ns3/object.h"
+#include <list>
+#include <utility>
 #include "ns3/packet.h"
+#include "ns3/nstime.h"
+#include "ns3/object.h"
 #include "wifi-mac-header.h"
 
 namespace ns3 {
@@ -48,15 +51,10 @@ class QosBlockedDestinations;
 class WifiMacQueue : public Object
 {
 public:
-  /**
-   * \brief Get the type ID.
-   * \return the object TypeId
-   */
   static TypeId GetTypeId (void);
   WifiMacQueue ();
   ~WifiMacQueue ();
 
-  /// drop policy
   enum DropPolicy
   {
     DROP_NEWEST,
@@ -91,14 +89,14 @@ public:
   /**
    * Enqueue the given packet and its corresponding WifiMacHeader at the <i>end</i> of the queue.
    *
-   * \param packet the packet to be enqueued at the end
+   * \param packet the packet to be euqueued at the end
    * \param hdr the header of the given packet
    */
   void Enqueue (Ptr<const Packet> packet, const WifiMacHeader &hdr);
   /**
    * Enqueue the given packet and its corresponding WifiMacHeader at the <i>front</i> of the queue.
    *
-   * \param packet the packet to be enqueued at the front
+   * \param packet the packet to be euqueued at the end
    * \param hdr the header of the given packet
    */
   void PushFront (Ptr<const Packet> packet, const WifiMacHeader &hdr);
@@ -230,7 +228,7 @@ protected:
   /**
    * Clean up the queue by removing packets that exceeded the maximum delay.
    */
-  void Cleanup (void);
+  virtual void Cleanup (void);
 
   /**
    * A struct that holds information about a packet for putting
@@ -256,15 +254,15 @@ protected:
   /**
    * typedef for packet (struct Item) queue.
    */
-  typedef std::list<Item> PacketQueue;
+  typedef std::list<struct Item> PacketQueue;
   /**
    * typedef for packet (struct Item) queue reverse iterator.
    */
-  typedef std::list<Item>::reverse_iterator PacketQueueRI;
+  typedef std::list<struct Item>::reverse_iterator PacketQueueRI;
   /**
    * typedef for packet (struct Item) queue iterator.
    */
-  typedef std::list<Item>::iterator PacketQueueI;
+  typedef std::list<struct Item>::iterator PacketQueueI;
   /**
    * Return the appropriate address for the given packet (given by PacketQueue iterator).
    *
@@ -273,13 +271,13 @@ protected:
    *
    * \return the address
    */
-  Mac48Address GetAddressForPacket (WifiMacHeader::AddressType type, PacketQueueI it);
+  Mac48Address GetAddressForPacket (enum WifiMacHeader::AddressType type, PacketQueueI it);
 
   PacketQueue m_queue; //!< Packet (struct Item) queue
   uint32_t m_size;     //!< Current queue size
   uint32_t m_maxSize;  //!< Queue capacity
   Time m_maxDelay;     //!< Time to live for packets in the queue
-  DropPolicy m_dropPolicy; //!< Drop behavior of queue
+  enum DropPolicy m_dropPolicy; //!< Drop behavior of queue
 };
 
 } //namespace ns3

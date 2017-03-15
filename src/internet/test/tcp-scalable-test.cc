@@ -31,26 +31,16 @@
 #include "ns3/tcp-socket-base.h"
 #include "ns3/tcp-scalable.h"
 
-using namespace ns3;
+namespace ns3 {
 
 NS_LOG_COMPONENT_DEFINE ("TcpScalableTestSuite");
 
 /**
- * \ingroup internet-test
- * \ingroup tests
- *
  * \brief Testing the congestion avoidance increment on TcpScalable
  */
 class TcpScalableIncrementTest : public TestCase
 {
 public:
-  /**
-   * \brief Constructor.
-   * \param cWnd Congestion window.
-   * \param segmentSize Segment size.
-   * \param segmentsAcked Segments ACKed.
-   * \param name Test description.
-   */
   TcpScalableIncrementTest (uint32_t cWnd, uint32_t segmentSize,
                             uint32_t segmentsAcked,
                             const std::string &name);
@@ -58,10 +48,10 @@ public:
 private:
   virtual void DoRun (void);
 
-  uint32_t m_cWnd;          //!< Congestion window.
-  uint32_t m_segmentSize;   //!< Segment size.
-  uint32_t m_segmentsAcked; //!< Segments ACKed.
-  Ptr<TcpSocketState> m_state;  //!< TCP socket state.
+  uint32_t m_cWnd;
+  uint32_t m_segmentSize;
+  uint32_t m_segmentsAcked;
+  Ptr<TcpSocketState> m_state;
 };
 
 TcpScalableIncrementTest::TcpScalableIncrementTest (uint32_t cWnd,
@@ -104,29 +94,20 @@ TcpScalableIncrementTest::DoRun ()
 }
 
 /**
- * \ingroup internet-test
- * \ingroup tests
- *
  * \brief Testing the multiplicative decrease on TcpScalable
  */
 class TcpScalableDecrementTest : public TestCase
 {
 public:
-  /**
-   * \brief Constructor.
-   * \param cWnd Congestion window.
-   * \param segmentSize Segment size.
-   * \param name Test description.
-   */
-  TcpScalableDecrementTest (uint32_t cWnd, uint32_t segmentSize,
+  TcpScalableDecrementTest (uint32_t ssThresh, uint32_t segmentSize,
                             const std::string &name);
 
 private:
   virtual void DoRun (void);
 
-  uint32_t m_cWnd;          //!< Congestion window.
-  uint32_t m_segmentSize;   //!< Segment size.
-  Ptr<TcpSocketState> m_state;  //!< TCP socket state.
+  uint32_t m_cWnd;
+  uint32_t m_segmentSize;
+  Ptr<TcpSocketState> m_state;
 };
 
 TcpScalableDecrementTest::TcpScalableDecrementTest (uint32_t cWnd,
@@ -165,13 +146,9 @@ TcpScalableDecrementTest::DoRun ()
 }
 
 
-/**
- * \ingroup internet-test
- * \ingroup tests
- *
- * \brief TcpScalable TestSuite.
- */
-class TcpScalableTestSuite : public TestSuite
+// -------------------------------------------------------------------
+
+static class TcpScalableTestSuite : public TestSuite
 {
 public:
   TcpScalableTestSuite () : TestSuite ("tcp-scalable-test", UNIT)
@@ -197,7 +174,6 @@ public:
                  TestCase::QUICK);
 
   }
-};
+} g_tcpScalableTest;
 
-static TcpScalableTestSuite g_tcpScalableTest; //!< Static variable for test initialization
-
+} // namespace ns3

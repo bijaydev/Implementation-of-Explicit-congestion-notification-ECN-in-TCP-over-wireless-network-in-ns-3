@@ -21,7 +21,6 @@
 #include <vector>
 #include "ns3/object.h"
 #include "ns3/wifi-mode.h"
-#include "ns3/wifi-preamble.h"
 
 namespace ns3 {
 
@@ -117,11 +116,6 @@ public:
   WifiMode GetManagementDataRate (uint32_t channelNumber);
   /**
    * \param channelNumber the specific channel
-   * \return the preamble for management frames
-   */
-  WifiPreamble GetManagementPreamble (uint32_t channelNumber);
-  /**
-   * \param channelNumber the specific channel
    * \return the tx power level for management frames
    */
   uint32_t GetManagementPowerLevel (uint32_t channelNumber);
@@ -136,7 +130,6 @@ private:
     uint32_t operatingClass;
     bool adaptable;
     WifiMode dataRate;
-    WifiPreamble preamble;
     uint32_t txPowerLevel;
 
     WaveChannel (uint32_t channel)
@@ -144,7 +137,6 @@ private:
         operatingClass (DEFAULT_OPERATING_CLASS),
         adaptable (true),
         dataRate (WifiMode ("OfdmRate6MbpsBW10MHz")),
-        preamble (WIFI_PREAMBLE_LONG),
         txPowerLevel (4)
     {
     }

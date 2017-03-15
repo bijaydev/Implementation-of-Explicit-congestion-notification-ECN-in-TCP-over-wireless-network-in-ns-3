@@ -39,7 +39,8 @@ public:
                             uint16_t dlMcs, uint16_t ulMcs);
   virtual ~LteCqiGenerationTestCase ();
 
-  void DlScheduling (DlSchedulingCallbackInfo dlInfo);
+  void DlScheduling (uint32_t frameNo, uint32_t subframeNo, uint16_t rnti,
+                     uint8_t mcsTb1, uint16_t sizeTb1, uint8_t mcsTb2, uint16_t sizeTb2);
 
   void UlScheduling (uint32_t frameNo, uint32_t subframeNo, uint16_t rnti,
                      uint8_t mcs, uint16_t sizeTb);
@@ -60,7 +61,8 @@ public:
                                           uint16_t dlMcs, uint16_t ulMcs);
   virtual ~LteCqiGenerationDlPowerControlTestCase ();
 
-  void DlScheduling (DlSchedulingCallbackInfo dlInfo);
+  void DlScheduling (uint32_t frameNo, uint32_t subframeNo, uint16_t rnti,
+                     uint8_t mcsTb1, uint16_t sizeTb1, uint8_t mcsTb2, uint16_t sizeTb2);
 
   void UlScheduling (uint32_t frameNo, uint32_t subframeNo, uint16_t rnti,
                      uint8_t mcs, uint16_t sizeTb);

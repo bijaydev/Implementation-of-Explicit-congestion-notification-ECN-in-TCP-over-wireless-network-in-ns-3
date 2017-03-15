@@ -472,7 +472,7 @@ OfdmUlMapIe::~OfdmUlMapIe (void)
 }
 
 void
-OfdmUlMapIe::SetCid (const Cid &cid)
+OfdmUlMapIe::SetCid (Cid cid)
 {
   m_cid = cid;
 }

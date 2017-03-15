@@ -105,7 +105,6 @@ private:
   /**
    * \param device Pointer to the NetDevice to install DeviceEnergyModel.
    * \param source Pointer to EnergySource to install.
-   * \returns Ptr<DeviceEnergyModel>
    *
    * Implements DeviceEnergyModel::Install.
    */
@@ -113,10 +112,10 @@ private:
                                             Ptr<EnergySource> source) const;
 
 private:
-  ObjectFactory m_radioEnergy; ///< radio energy
-  WifiRadioEnergyModel::WifiRadioEnergyDepletionCallback m_depletionCallback; ///< radio energy depletion callback
-  WifiRadioEnergyModel::WifiRadioEnergyRechargedCallback m_rechargedCallback; ///< radio energy recharged callback
-  ObjectFactory m_txCurrentModel; ///< transmit current model
+  ObjectFactory m_radioEnergy;
+  WifiRadioEnergyModel::WifiRadioEnergyDepletionCallback m_depletionCallback;
+  WifiRadioEnergyModel::WifiRadioEnergyRechargedCallback m_rechargedCallback;
+  ObjectFactory m_txCurrentModel;
 
 };
 

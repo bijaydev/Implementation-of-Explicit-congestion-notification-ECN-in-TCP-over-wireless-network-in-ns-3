@@ -33,7 +33,6 @@
 #include "log.h"
 #include "rng-stream.h"
 #include "rng-seed-manager.h"
-#include "unused.h"
 #include <cmath>
 #include <iostream>
 
@@ -456,15 +455,9 @@ ParetoRandomVariable::GetTypeId (void)
     .SetGroupName ("Core")
     .AddConstructor<ParetoRandomVariable> ()
     .AddAttribute("Mean", "The mean parameter for the Pareto distribution returned by this RNG stream.",
-      DoubleValue(0.0),
-      MakeDoubleAccessor(&ParetoRandomVariable::m_mean),
-      MakeDoubleChecker<double>(),
-      TypeId::DEPRECATED,
-      "Not anymore used. Use 'Scale' instead - changing this attribute has no effect.")
-    .AddAttribute("Scale", "The scale parameter for the Pareto distribution returned by this RNG stream.",
-      DoubleValue(1.0),
-      MakeDoubleAccessor(&ParetoRandomVariable::m_scale),
-      MakeDoubleChecker<double>())
+		  DoubleValue(1.0),
+		  MakeDoubleAccessor(&ParetoRandomVariable::m_mean),
+		  MakeDoubleChecker<double>())
     .AddAttribute("Shape", "The shape parameter for the Pareto distribution returned by this RNG stream.",
 		  DoubleValue(2.0),
 		  MakeDoubleAccessor(&ParetoRandomVariable::m_shape),
@@ -478,41 +471,23 @@ ParetoRandomVariable::GetTypeId (void)
 }
 ParetoRandomVariable::ParetoRandomVariable ()
 {
-  // m_shape, m_shape, and m_bound are initialized after constructor
+  // m_mean, m_shape, and m_bound are initialized after constructor
   // by attributes
   NS_LOG_FUNCTION (this);
-  NS_UNUSED (m_mean);
 }
 
 double 
 ParetoRandomVariable::GetMean (void) const
 {
   NS_LOG_FUNCTION (this);
-
-  double mean = std::numeric_limits<double>::infinity();
-
-  if (m_shape > 1)
-    {
-      mean = m_shape * m_scale / (m_shape -1);
-    }
-
-  return mean;
+  return m_mean;
 }
-
 double 
-ParetoRandomVariable::GetScale (void) const
-{
-  NS_LOG_FUNCTION (this);
-  return m_scale;
-}
-
-double
 ParetoRandomVariable::GetShape (void) const
 {
   NS_LOG_FUNCTION (this);
   return m_shape;
 }
-
 double 
 ParetoRandomVariable::GetBound (void) const
 {
@@ -521,10 +496,11 @@ ParetoRandomVariable::GetBound (void) const
 }
 
 double 
-ParetoRandomVariable::GetValue (double scale, double shape, double bound)
+ParetoRandomVariable::GetValue (double mean, double shape, double bound)
 {
   // Calculate the scale parameter.
-  NS_LOG_FUNCTION (this << scale << shape << bound);
+  NS_LOG_FUNCTION (this << mean << shape << bound);
+  double scale = mean * (shape - 1.0) / shape;
 
   while (1)
     {
@@ -546,23 +522,23 @@ ParetoRandomVariable::GetValue (double scale, double shape, double bound)
     }
 }
 uint32_t 
-ParetoRandomVariable::GetInteger (uint32_t scale, uint32_t shape, uint32_t bound)
+ParetoRandomVariable::GetInteger (uint32_t mean, uint32_t shape, uint32_t bound)
 {
-  NS_LOG_FUNCTION (this << scale << shape << bound);
-  return static_cast<uint32_t> ( GetValue (scale, shape, bound) );
+  NS_LOG_FUNCTION (this << mean << shape << bound);
+  return static_cast<uint32_t> ( GetValue (mean, shape, bound) );
 }
 
 double 
 ParetoRandomVariable::GetValue (void)
 {
   NS_LOG_FUNCTION (this);
-  return GetValue (m_scale, m_shape, m_bound);
+  return GetValue (m_mean, m_shape, m_bound);
 }
 uint32_t 
 ParetoRandomVariable::GetInteger (void)
 {
   NS_LOG_FUNCTION (this);
-  return (uint32_t)GetValue (m_scale, m_shape, m_bound);
+  return (uint32_t)GetValue (m_mean, m_shape, m_bound);
 }
 
 NS_OBJECT_ENSURE_REGISTERED(WeibullRandomVariable);

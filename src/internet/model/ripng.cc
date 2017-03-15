@@ -466,15 +466,15 @@ void RipNg::SetIpv6 (Ptr<Ipv6> ipv6)
     }
 }
 
-void RipNg::PrintRoutingTable (Ptr<OutputStreamWrapper> stream, Time::Unit unit) const
+void RipNg::PrintRoutingTable (Ptr<OutputStreamWrapper> stream) const
 {
   NS_LOG_FUNCTION (this << stream);
 
   std::ostream* os = stream->GetStream ();
 
   *os << "Node: " << m_ipv6->GetObject<Node> ()->GetId ()
-      << ", Time: " << Now().As (unit)
-      << ", Local time: " << GetObject<Node> ()->GetLocalTime ().As (unit)
+      << ", Time: " << Now().As (Time::S)
+      << ", Local time: " << GetObject<Node> ()->GetLocalTime ().As (Time::S)
       << ", IPv6 RIPng table" << std::endl;
 
   if (!m_routes.empty ())

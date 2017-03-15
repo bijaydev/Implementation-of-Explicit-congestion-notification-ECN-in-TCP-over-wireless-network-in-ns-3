@@ -462,15 +462,8 @@ protected:
   virtual void NotifyNewAggregate ();
 
 private:
-  /**
-   * \brief Ipv6L3ProtocolTestCase test case.
-   * \relates Ipv6L3ProtocolTestCase
-   */
+  /* for unit-tests */
   friend class ::Ipv6L3ProtocolTestCase;
-  /**
-   * \brief Ipv6ExtensionLooseRouting.
-   * \relates Ipv6ExtensionLooseRouting
-   */
   friend class Ipv6ExtensionLooseRouting;
 
   /**

@@ -90,7 +90,7 @@ EthernetTrailer::SetFcs (uint32_t fcs)
 }
 
 uint32_t
-EthernetTrailer::GetFcs (void) const
+EthernetTrailer::GetFcs (void)
 {
   NS_LOG_FUNCTION (this);
   return m_fcs;

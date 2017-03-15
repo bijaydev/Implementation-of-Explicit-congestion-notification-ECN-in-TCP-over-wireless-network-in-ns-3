@@ -23,6 +23,7 @@
  */
 
 #include "snr-tag.h"
+#include "ns3/tag.h"
 #include "ns3/double.h"
 
 namespace ns3 {

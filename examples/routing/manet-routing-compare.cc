@@ -289,7 +289,6 @@ RoutingExperiment::Run (int nSinks, double txp, std::string CSVfileName)
   mobilityAdhoc.SetPositionAllocator (taPositionAlloc);
   mobilityAdhoc.Install (adhocNodes);
   streamIndex += mobilityAdhoc.AssignStreams (adhocNodes, streamIndex);
-  NS_UNUSED (streamIndex); // From this point, streamIndex is unused
 
   AodvHelper aodv;
   OlsrHelper olsr;

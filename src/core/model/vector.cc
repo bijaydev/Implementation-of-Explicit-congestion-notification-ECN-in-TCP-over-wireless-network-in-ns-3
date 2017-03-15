@@ -22,7 +22,6 @@
 #include "log.h"
 #include <cmath>
 #include <sstream>
-#include <tuple>
 
 /**
  * \file
@@ -111,11 +110,6 @@ std::istream &operator >> (std::istream &is, Vector3D &vector)
     }
   return is;
 }
-bool operator < (const Vector3D &a, const Vector3D &b)
-{
-  return std::tie (a.x, a.y, a.z) <
-         std::tie (b.x, b.y, b.z);
-}
 std::ostream &operator << (std::ostream &os, const Vector2D &vector)
 {
   os << vector.x << ":" << vector.y;
@@ -130,11 +124,6 @@ std::istream &operator >> (std::istream &is, Vector2D &vector)
       is.setstate (std::ios_base::failbit);
     }
   return is;
-}
-bool operator < (const Vector2D &a, const Vector2D &b)
-{
-  return std::tie (a.x, a.y) <
-         std::tie (b.x, b.y);
 }
 
 } // namespace ns3

@@ -39,7 +39,7 @@ IePrep::IePrep () :
 WifiInformationElementId
 IePrep::ElementId () const
 {
-  return IE_PREP;
+  return IE11S_PREP;
 }
 void
 IePrep::SetFlags (uint8_t flags)

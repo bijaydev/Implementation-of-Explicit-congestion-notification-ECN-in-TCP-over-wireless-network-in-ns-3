@@ -66,9 +66,10 @@ NS_LOG_COMPONENT_DEFINE ("LtePathlossModelTest");
 
 void
 LteTestPathlossDlSchedCallback (LtePathlossModelSystemTestCase *testcase, std::string path,
-		                        DlSchedulingCallbackInfo dlInfo)
+                             uint32_t frameNo, uint32_t subframeNo, uint16_t rnti,
+                             uint8_t mcsTb1, uint16_t sizeTb1, uint8_t mcsTb2, uint16_t sizeTb2)
 {
-  testcase->DlScheduling (dlInfo);
+  testcase->DlScheduling (frameNo, subframeNo, rnti, mcsTb1, sizeTb1, mcsTb2, sizeTb2);
 }
 
 
@@ -288,7 +289,8 @@ LtePathlossModelSystemTestCase::DoRun (void)
 
 
 void
-LtePathlossModelSystemTestCase::DlScheduling (DlSchedulingCallbackInfo dlInfo)
+LtePathlossModelSystemTestCase::DlScheduling (uint32_t frameNo, uint32_t subframeNo, uint16_t rnti,
+                                         uint8_t mcsTb1, uint16_t sizeTb1, uint8_t mcsTb2, uint16_t sizeTb2) 
 {
   static bool firstTime = true;
   
@@ -302,8 +304,8 @@ LtePathlossModelSystemTestCase::DlScheduling (DlSchedulingCallbackInfo dlInfo)
   // need to allow for RRC connection establishment + SRS transmission
   if (Simulator::Now () > MilliSeconds (21))
   {
-    NS_LOG_INFO (m_snrDb << "\t" << m_mcsIndex << "\t" << (uint16_t)dlInfo.mcsTb1);
+    NS_LOG_INFO (m_snrDb << "\t" << m_mcsIndex << "\t" << (uint16_t)mcsTb1);
     
-    NS_TEST_ASSERT_MSG_EQ ((uint16_t)dlInfo.mcsTb1, m_mcsIndex, "Wrong MCS index");
+    NS_TEST_ASSERT_MSG_EQ ((uint16_t)mcsTb1, m_mcsIndex, "Wrong MCS index");
   }
 }

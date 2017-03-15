@@ -37,7 +37,6 @@
 #include <list>
 #include <vector>
 #include <iostream>
-#include <iomanip>
 
 /**
  * \file
@@ -86,31 +85,7 @@ static GlobalValue g_schedTypeImpl = GlobalValue ("SchedulerType",
 static void
 TimePrinter (std::ostream &os)
 {
-  std::ios_base::fmtflags ff = os.flags (); // Save stream flags
-  std::streamsize oldPrecision = os.precision ();
-  if (Time::GetResolution () == Time::NS)
-    {
-      os << std::fixed << std::setprecision (9) << Simulator::Now ().As (Time::S);
-    }
-  else if (Time::GetResolution () == Time::PS) 
-    {
-      os << std::fixed << std::setprecision (12) << Simulator::Now ().As (Time::S);
-    }
-  else if (Time::GetResolution () == Time::FS) 
-    {
-      os << std::fixed << std::setprecision (15) << Simulator::Now ().As (Time::S);
-    }
-  else if (Time::GetResolution () == Time::US) 
-    {
-      os << std::fixed << std::setprecision (6) << Simulator::Now ().As (Time::S);
-    }
-  else
-    {
-      // default C++ precision of 5
-      os << std::fixed << std::setprecision (5) << Simulator::Now ().As (Time::S);
-    }
-  os << std::setprecision (oldPrecision);
-  os.flags (ff); // Restore stream flags
+  os << Simulator::Now ().GetSeconds () << "s";
 }
 
 /**

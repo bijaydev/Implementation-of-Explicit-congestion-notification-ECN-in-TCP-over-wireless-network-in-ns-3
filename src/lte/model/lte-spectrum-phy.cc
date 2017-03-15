@@ -114,9 +114,8 @@ NS_OBJECT_ENSURE_REGISTERED (LteSpectrumPhy);
 LteSpectrumPhy::LteSpectrumPhy ()
   : m_state (IDLE),
     m_cellId (0),
-    m_componentCarrierId (0),
-    m_transmissionMode (0),
-    m_layersNum (1)
+  m_transmissionMode (0),
+  m_layersNum (1)
 {
   NS_LOG_FUNCTION (this);
   m_random = CreateObject<UniformRandomVariable> ();
@@ -985,7 +984,6 @@ LteSpectrumPhy::EndRxData ()
           params.m_rv = (*itTb).second.rv;
           params.m_ndi = (*itTb).second.ndi;
           params.m_correctness = (uint8_t)!(*itTb).second.corrupt;
-          params.m_ccId = m_componentCarrierId;
           if ((*itTb).second.downlink)
             {
               // DL
@@ -1064,7 +1062,7 @@ LteSpectrumPhy::EndRxData ()
                         if (itHarq==harqDlInfoMap.end ())
                           {
                             DlInfoListElement_s harqDlInfo;
-                            harqDlInfo.m_harqStatus.resize (m_layersNum, DlInfoListElement_s::ACK);
+                            harqDlInfo.m_harqStatus.resize (m_layersNum, DlInfoListElement_s::NACK);
                             harqDlInfo.m_rnti = tbId.m_rnti;
                             harqDlInfo.m_harqProcessId = (*itTb).second.harqProcessId;
                             if ((*itTb).second.corrupt)
@@ -1191,11 +1189,6 @@ LteSpectrumPhy::SetCellId (uint16_t cellId)
   m_cellId = cellId;
 }
 
-void
-LteSpectrumPhy::SetComponentCarrierId (uint8_t componentCarrierId)
-{
-  m_componentCarrierId = componentCarrierId;
-}
 
 void
 LteSpectrumPhy::AddRsPowerChunkProcessor (Ptr<LteChunkProcessor> p)

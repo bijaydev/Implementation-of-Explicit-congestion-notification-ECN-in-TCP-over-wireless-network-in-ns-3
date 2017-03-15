@@ -579,6 +579,7 @@ LteMiErrorModel::GetTbDecodificationStats (const SpectrumValue& sinr, const std:
   uint16_t Z = 6144; // max size of a codeblock (including CRC)
   uint32_t B = size * 8;
 //   B = 1234;
+  uint32_t L = 0;
   uint32_t C = 0; // no. of codeblocks
   uint32_t Cplus = 0; // no. of codeblocks with size K+
   uint32_t Kplus = 0; // no. of codeblocks with size K+
@@ -589,13 +590,13 @@ LteMiErrorModel::GetTbDecodificationStats (const SpectrumValue& sinr, const std:
   if (B <= Z)
     {
       // only one codeblock
-      //L = 0;
+      L = 0;
       C = 1;
       B1 = B;
     }
   else
     {
-      uint32_t L = 24;
+      L = 24;
       C = ceil ((double)B / ((double)(Z-L)));
       B1 = B + C * L;
     }

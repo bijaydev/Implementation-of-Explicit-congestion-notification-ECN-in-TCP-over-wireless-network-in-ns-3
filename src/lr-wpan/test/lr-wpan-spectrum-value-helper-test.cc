@@ -26,12 +26,6 @@
 
 using namespace ns3;
 
-/**
- * \ingroup lr-wpan-test
- * \ingroup tests
- *
- * \brief LrWpan SpectrumValue Helper TestSuite
- */
 class LrWpanSpectrumValueHelperTestCase : public TestCase
 {
 public:
@@ -70,12 +64,7 @@ LrWpanSpectrumValueHelperTestCase::DoRun (void)
     }
 }
 
-/**
- * \ingroup lr-wpan-test
- * \ingroup tests
- *
- * \brief LrWpan SpectrumValue Helper TestSuite
- */
+// ==============================================================================
 class LrWpanSpectrumValueHelperTestSuite : public TestSuite
 {
 public:
@@ -88,4 +77,4 @@ LrWpanSpectrumValueHelperTestSuite::LrWpanSpectrumValueHelperTestSuite ()
   AddTestCase (new LrWpanSpectrumValueHelperTestCase, TestCase::QUICK);
 }
 
-static LrWpanSpectrumValueHelperTestSuite g_lrWpanSpectrumValueHelperTestSuite; //!< Static variable for test initialization
+static LrWpanSpectrumValueHelperTestSuite lrWpanSpectrumValueHelperTestSuite;

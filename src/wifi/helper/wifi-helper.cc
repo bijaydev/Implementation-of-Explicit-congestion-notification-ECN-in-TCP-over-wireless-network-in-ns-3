@@ -22,28 +22,33 @@
 
 #include "wifi-helper.h"
 #include "ns3/wifi-net-device.h"
+#include "ns3/wifi-mac.h"
+#include "ns3/regular-wifi-mac.h"
+#include "ns3/dca-txop.h"
+#include "ns3/edca-txop-n.h"
 #include "ns3/minstrel-wifi-manager.h"
 #include "ns3/ap-wifi-mac.h"
+#include "ns3/wifi-phy.h"
 #include "ns3/ampdu-subframe-header.h"
+#include "ns3/wifi-remote-station-manager.h"
+#include "ns3/wifi-channel.h"
+#include "ns3/yans-wifi-channel.h"
+#include "ns3/propagation-delay-model.h"
+#include "ns3/propagation-loss-model.h"
+#include "ns3/mobility-model.h"
 #include "ns3/log.h"
 #include "ns3/pointer.h"
 #include "ns3/radiotap-header.h"
+#include "ns3/pcap-file-wrapper.h"
+#include "ns3/abort.h"
 #include "ns3/config.h"
+#include "ns3/simulator.h"
 #include "ns3/names.h"
 
 namespace ns3 {
 
 NS_LOG_COMPONENT_DEFINE ("WifiHelper");
 
-/**
- * ASCII trace Phy transmit sink with context
- * \param stream the output stream
- * \param context the context name
- * \param p the packet
- * \param mode the wifi mode
- * \param preamble the wifi preamble
- * \param txLevel the transmit power level
- */
 static void
 AsciiPhyTransmitSinkWithContext (
   Ptr<OutputStreamWrapper> stream,
@@ -57,14 +62,6 @@ AsciiPhyTransmitSinkWithContext (
   *stream->GetStream () << "t " << Simulator::Now ().GetSeconds () << " " << context << " " << *p << std::endl;
 }
 
-/**
- * ASCII trace Phy transmit sink without context
- * \param stream the output stream
- * \param p the packet
- * \param mode the wifi mode
- * \param preamble the wifi preamble
- * \param txLevel the transmit power level
- */
 static void
 AsciiPhyTransmitSinkWithoutContext (
   Ptr<OutputStreamWrapper> stream,
@@ -77,15 +74,6 @@ AsciiPhyTransmitSinkWithoutContext (
   *stream->GetStream () << "t " << Simulator::Now ().GetSeconds () << " " << *p << std::endl;
 }
 
-/**
- * ASCII trace Phy receive sink with context
- * \param stream the output stream
- * \param context the context name
- * \param p the packet
- * \param snr the SNR
- * \param mode the wifi mode
- * \param preamble the wifi preamble
- */
 static void
 AsciiPhyReceiveSinkWithContext (
   Ptr<OutputStreamWrapper> stream,
@@ -99,14 +87,6 @@ AsciiPhyReceiveSinkWithContext (
   *stream->GetStream () << "r " << Simulator::Now ().GetSeconds () << " " << context << " " << *p << std::endl;
 }
 
-/**
- * ASCII trace Phy receive sink without context
- * \param stream the output stream
- * \param p the packet
- * \param snr the SNR
- * \param mode the wifi mode
- * \param preamble the wifi preamble
- */
 static void
 AsciiPhyReceiveSinkWithoutContext (
   Ptr<OutputStreamWrapper> stream,
@@ -136,14 +116,14 @@ WifiPhyHelper::Set (std::string name, const AttributeValue &v)
 
 void
 WifiPhyHelper::SetErrorRateModel (std::string name,
-                                  std::string n0, const AttributeValue &v0,
-                                  std::string n1, const AttributeValue &v1,
-                                  std::string n2, const AttributeValue &v2,
-                                  std::string n3, const AttributeValue &v3,
-                                  std::string n4, const AttributeValue &v4,
-                                  std::string n5, const AttributeValue &v5,
-                                  std::string n6, const AttributeValue &v6,
-                                  std::string n7, const AttributeValue &v7)
+                                      std::string n0, const AttributeValue &v0,
+                                      std::string n1, const AttributeValue &v1,
+                                      std::string n2, const AttributeValue &v2,
+                                      std::string n3, const AttributeValue &v3,
+                                      std::string n4, const AttributeValue &v4,
+                                      std::string n5, const AttributeValue &v5,
+                                      std::string n6, const AttributeValue &v6,
+                                      std::string n7, const AttributeValue &v7)
 {
   m_errorRateModel = ObjectFactory ();
   m_errorRateModel.SetTypeId (name);
@@ -162,11 +142,13 @@ WifiPhyHelper::PcapSniffTxEvent (
   Ptr<PcapFileWrapper> file,
   Ptr<const Packet>    packet,
   uint16_t             channelFreqMhz,
+  uint16_t             channelNumber,
+  uint32_t             rate,
+  WifiPreamble         preamble,
   WifiTxVector         txVector,
-  MpduInfo             aMpdu)
+  struct mpduInfo      aMpdu)
 {
   uint32_t dlt = file->GetDataLinkType ();
-  WifiPreamble preamble = txVector.GetPreambleType ();
 
   switch (dlt)
     {
@@ -193,22 +175,12 @@ WifiPhyHelper::PcapSniffTxEvent (
             frameFlags |= RadiotapHeader::FRAME_FLAG_SHORT_PREAMBLE;
           }
 
-        if (txVector.GetGuardInterval () == 400)
+        if (txVector.IsShortGuardInterval ())
           {
             frameFlags |= RadiotapHeader::FRAME_FLAG_SHORT_GUARD;
           }
 
         header.SetFrameFlags (frameFlags);
-
-        uint32_t rate;
-        if (txVector.GetMode ().GetModulationClass () == WIFI_MOD_CLASS_HT || txVector.GetMode ().GetModulationClass () == WIFI_MOD_CLASS_VHT || txVector.GetMode ().GetModulationClass () == WIFI_MOD_CLASS_HE)
-          {
-            rate = 128 + txVector.GetMode ().GetMcsValue ();
-          }
-        else
-          {
-            rate = txVector.GetMode ().GetDataRate (txVector.GetChannelWidth (), txVector.GetGuardInterval (), 1) * txVector.GetNss () / 500000;
-          }
         header.SetRate (rate);
 
         uint16_t channelFlags = 0;
@@ -253,7 +225,7 @@ WifiPhyHelper::PcapSniffTxEvent (
               }
 
             mcsKnown |= RadiotapHeader::MCS_KNOWN_GUARD_INTERVAL;
-            if (txVector.GetGuardInterval () == 400)
+            if (txVector.IsShortGuardInterval ())
               {
                 mcsFlags |= RadiotapHeader::MCS_FLAGS_GUARD_INTERVAL;
               }
@@ -319,7 +291,7 @@ WifiPhyHelper::PcapSniffTxEvent (
               }
 
             vhtKnown |= RadiotapHeader::VHT_KNOWN_GUARD_INTERVAL;
-            if (txVector.GetGuardInterval () == 400)
+            if (txVector.IsShortGuardInterval ())
               {
                 vhtFlags |= RadiotapHeader::VHT_FLAGS_GUARD_INTERVAL;
               }
@@ -362,12 +334,14 @@ WifiPhyHelper::PcapSniffRxEvent (
   Ptr<PcapFileWrapper>  file,
   Ptr<const Packet>     packet,
   uint16_t              channelFreqMhz,
+  uint16_t              channelNumber,
+  uint32_t              rate,
+  WifiPreamble          preamble,
   WifiTxVector          txVector,
-  MpduInfo              aMpdu,
-  SignalNoiseDbm        signalNoise)
+  struct mpduInfo       aMpdu,
+  struct signalNoiseDbm signalNoise)
 {
   uint32_t dlt = file->GetDataLinkType ();
-  WifiPreamble preamble = txVector.GetPreambleType ();
 
   switch (dlt)
     {
@@ -394,22 +368,12 @@ WifiPhyHelper::PcapSniffRxEvent (
             frameFlags |= RadiotapHeader::FRAME_FLAG_SHORT_PREAMBLE;
           }
 
-        if (txVector.GetGuardInterval () == 400)
+        if (txVector.IsShortGuardInterval ())
           {
             frameFlags |= RadiotapHeader::FRAME_FLAG_SHORT_GUARD;
           }
 
         header.SetFrameFlags (frameFlags);
-
-        uint32_t rate;
-        if (txVector.GetMode ().GetModulationClass () == WIFI_MOD_CLASS_HT || txVector.GetMode ().GetModulationClass () == WIFI_MOD_CLASS_VHT || txVector.GetMode ().GetModulationClass () == WIFI_MOD_CLASS_HE)
-          {
-            rate = 128 + txVector.GetMode ().GetMcsValue ();
-          }
-        else
-          {
-            rate = txVector.GetMode ().GetDataRate (txVector.GetChannelWidth (), txVector.GetGuardInterval (), 1) * txVector.GetNss () / 500000;
-          }
         header.SetRate (rate);
 
         uint16_t channelFlags = 0;
@@ -457,7 +421,7 @@ WifiPhyHelper::PcapSniffRxEvent (
               }
 
             mcsKnown |= RadiotapHeader::MCS_KNOWN_GUARD_INTERVAL;
-            if (txVector.GetGuardInterval () == 400)
+            if (txVector.IsShortGuardInterval ())
               {
                 mcsFlags |= RadiotapHeader::MCS_FLAGS_GUARD_INTERVAL;
               }
@@ -524,7 +488,7 @@ WifiPhyHelper::PcapSniffRxEvent (
               }
 
             vhtKnown |= RadiotapHeader::VHT_KNOWN_GUARD_INTERVAL;
-            if (txVector.GetGuardInterval () == 400)
+            if (txVector.IsShortGuardInterval ())
               {
                 vhtFlags |= RadiotapHeader::VHT_FLAGS_GUARD_INTERVAL;
               }
@@ -787,50 +751,33 @@ WifiHelper::Install (const WifiPhyHelper &phy,
 void
 WifiHelper::EnableLogComponents (void)
 {
-  LogComponentEnable ("AarfWifiManager", LOG_LEVEL_ALL);
-  LogComponentEnable ("AarfcdWifiManager", LOG_LEVEL_ALL);
+  LogComponentEnable ("Aarfcd", LOG_LEVEL_ALL);
   LogComponentEnable ("AdhocWifiMac", LOG_LEVEL_ALL);
-  LogComponentEnable ("AmrrWifiManager", LOG_LEVEL_ALL);
+  LogComponentEnable ("AmrrWifiRemoteStation", LOG_LEVEL_ALL);
   LogComponentEnable ("ApWifiMac", LOG_LEVEL_ALL);
-  LogComponentEnable ("AparfWifiManager", LOG_LEVEL_ALL);
   LogComponentEnable ("ArfWifiManager", LOG_LEVEL_ALL);
-  LogComponentEnable ("BlockAckAgreement", LOG_LEVEL_ALL);
-  LogComponentEnable ("BlockAckCache", LOG_LEVEL_ALL);
-  LogComponentEnable ("BlockAckManager", LOG_LEVEL_ALL);
-  LogComponentEnable ("CaraWifiManager", LOG_LEVEL_ALL);
-  LogComponentEnable ("ConstantRateWifiManager", LOG_LEVEL_ALL);
+  LogComponentEnable ("Cara", LOG_LEVEL_ALL);
   LogComponentEnable ("DcaTxop", LOG_LEVEL_ALL);
   LogComponentEnable ("DcfManager", LOG_LEVEL_ALL);
   LogComponentEnable ("DsssErrorRateModel", LOG_LEVEL_ALL);
   LogComponentEnable ("EdcaTxopN", LOG_LEVEL_ALL);
-  LogComponentEnable ("IdealWifiManager", LOG_LEVEL_ALL);
   LogComponentEnable ("InterferenceHelper", LOG_LEVEL_ALL);
+  LogComponentEnable ("Jakes", LOG_LEVEL_ALL);
   LogComponentEnable ("MacLow", LOG_LEVEL_ALL);
   LogComponentEnable ("MacRxMiddle", LOG_LEVEL_ALL);
-  LogComponentEnable ("MacTxMiddle", LOG_LEVEL_ALL);
-  LogComponentEnable ("MinstrelHtWifiManager", LOG_LEVEL_ALL);
-  LogComponentEnable ("MinstrelWifiManager", LOG_LEVEL_ALL);
-  LogComponentEnable ("MpduAggregator", LOG_LEVEL_ALL);
-  LogComponentEnable ("MpduStandardAggregator", LOG_LEVEL_ALL);
   LogComponentEnable ("MsduAggregator", LOG_LEVEL_ALL);
   LogComponentEnable ("MsduStandardAggregator", LOG_LEVEL_ALL);
   LogComponentEnable ("NistErrorRateModel", LOG_LEVEL_ALL);
-  LogComponentEnable ("OnoeWifiManager", LOG_LEVEL_ALL);
-  LogComponentEnable ("ParfWifiManager", LOG_LEVEL_ALL);
+  LogComponentEnable ("OnoeWifiRemoteStation", LOG_LEVEL_ALL);
+  LogComponentEnable ("PropagationLossModel", LOG_LEVEL_ALL);
   LogComponentEnable ("RegularWifiMac", LOG_LEVEL_ALL);
   LogComponentEnable ("RraaWifiManager", LOG_LEVEL_ALL);
-  LogComponentEnable ("SpectrumWifiPhy", LOG_LEVEL_ALL);
   LogComponentEnable ("StaWifiMac", LOG_LEVEL_ALL);
   LogComponentEnable ("SupportedRates", LOG_LEVEL_ALL);
-  LogComponentEnable ("WifiMac", LOG_LEVEL_ALL);
-  LogComponentEnable ("WifiNetDevice", LOG_LEVEL_ALL);
+  LogComponentEnable ("WifiChannel", LOG_LEVEL_ALL);
   LogComponentEnable ("WifiPhyStateHelper", LOG_LEVEL_ALL);
   LogComponentEnable ("WifiPhy", LOG_LEVEL_ALL);
-  LogComponentEnable ("WifiRadioEnergyModel", LOG_LEVEL_ALL);
   LogComponentEnable ("WifiRemoteStationManager", LOG_LEVEL_ALL);
-  LogComponentEnable ("WifiSpectrumPhyInterface", LOG_LEVEL_ALL);
-  LogComponentEnable ("WifiSpectrumSignalParameters", LOG_LEVEL_ALL);
-  LogComponentEnable ("WifiTxCurrentModel", LOG_LEVEL_ALL);
   LogComponentEnable ("YansErrorRateModel", LOG_LEVEL_ALL);
   LogComponentEnable ("YansWifiChannel", LOG_LEVEL_ALL);
   LogComponentEnable ("YansWifiPhy", LOG_LEVEL_ALL);

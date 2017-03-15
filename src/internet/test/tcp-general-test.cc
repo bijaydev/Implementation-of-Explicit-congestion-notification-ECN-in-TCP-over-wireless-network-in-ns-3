@@ -29,7 +29,7 @@
 #include "../model/ipv6-end-point.h"
 #include "tcp-general-test.h"
 
-using namespace ns3;
+namespace ns3 {
 
 NS_LOG_COMPONENT_DEFINE ("TcpGeneralTest");
 
@@ -173,8 +173,7 @@ TcpGeneralTest::DoRun (void)
                                        MakeCallback (&TcpGeneralTest::ErrorCloseCb, this));
   m_receiverSocket->SetRcvAckCb (MakeCallback (&TcpGeneralTest::RcvAckCb, this));
   m_receiverSocket->SetProcessedAckCb (MakeCallback (&TcpGeneralTest::ProcessedAckCb, this));
-  m_receiverSocket->SetAfterRetransmitCb (MakeCallback (&TcpGeneralTest::AfterRetransmitCb, this));
-  m_receiverSocket->SetBeforeRetransmitCb (MakeCallback (&TcpGeneralTest::BeforeRetransmitCb, this));
+  m_receiverSocket->SetRetransmitCb (MakeCallback (&TcpGeneralTest::RtoExpiredCb, this));
   m_receiverSocket->SetForkCb (MakeCallback (&TcpGeneralTest::ForkCb, this));
   m_receiverSocket->SetUpdateRttHistoryCb (MakeCallback (&TcpGeneralTest::UpdateRttHistoryCb, this));
   m_receiverSocket->TraceConnectWithoutContext ("Tx",
@@ -190,8 +189,7 @@ TcpGeneralTest::DoRun (void)
                                      MakeCallback (&TcpGeneralTest::ErrorCloseCb, this));
   m_senderSocket->SetRcvAckCb (MakeCallback (&TcpGeneralTest::RcvAckCb, this));
   m_senderSocket->SetProcessedAckCb (MakeCallback (&TcpGeneralTest::ProcessedAckCb, this));
-  m_senderSocket->SetAfterRetransmitCb (MakeCallback (&TcpGeneralTest::AfterRetransmitCb, this));
-  m_senderSocket->SetBeforeRetransmitCb (MakeCallback (&TcpGeneralTest::BeforeRetransmitCb, this));
+  m_senderSocket->SetRetransmitCb (MakeCallback (&TcpGeneralTest::RtoExpiredCb, this));
   m_senderSocket->SetDataSentCallback (MakeCallback (&TcpGeneralTest::DataSentCb, this));
   m_senderSocket->SetUpdateRttHistoryCb (MakeCallback (&TcpGeneralTest::UpdateRttHistoryCb, this));
   m_senderSocket->TraceConnectWithoutContext ("CongestionWindow",
@@ -372,34 +370,16 @@ TcpGeneralTest::UpdateRttHistoryCb (Ptr<const TcpSocketBase> tcp,
 }
 
 void
-TcpGeneralTest::AfterRetransmitCb (const Ptr<const TcpSocketState> tcb,
-                                   const Ptr<const TcpSocketBase> tcp)
+TcpGeneralTest::RtoExpiredCb (const Ptr<const TcpSocketState> tcb,
+                              const Ptr<const TcpSocketBase> tcp)
 {
   if (tcp->GetNode () == m_receiverSocket->GetNode ())
     {
-      AfterRTOExpired (tcb, RECEIVER);
+      RTOExpired (tcb, RECEIVER);
     }
   else if (tcp->GetNode () == m_senderSocket->GetNode ())
     {
-      AfterRTOExpired (tcb, SENDER);
-    }
-  else
-    {
-      NS_FATAL_ERROR ("Closed socket, but not recognized");
-    }
-}
-
-void
-TcpGeneralTest::BeforeRetransmitCb (const Ptr<const TcpSocketState> tcb,
-                                    const Ptr<const TcpSocketBase> tcp)
-{
-  if (tcp->GetNode () == m_receiverSocket->GetNode ())
-    {
-      BeforeRTOExpired (tcb, RECEIVER);
-    }
-  else if (tcp->GetNode () == m_senderSocket->GetNode ())
-    {
-      BeforeRTOExpired (tcb, SENDER);
+      RTOExpired (tcb, SENDER);
     }
   else
     {
@@ -902,6 +882,23 @@ TcpGeneralTest::SetInitialCwnd (SocketWho who, uint32_t initialCwnd)
     }
 }
 
+void 
+TcpGeneralTest::SetECN (SocketWho who)
+{
+  if (who == SENDER)
+    {
+      m_senderSocket->SetEcn ();
+    }
+   else if (who == RECEIVER)
+    {
+      m_receiverSocket->SetEcn ();
+    }
+  else
+    {
+      NS_FATAL_ERROR ("Not defined");
+    }
+}
+
 void
 TcpGeneralTest::SetInitialSsThresh (SocketWho who, uint32_t initialSsThresh)
 {
@@ -953,17 +950,10 @@ TcpSocketMsgBase::SetProcessedAckCb (AckManagementCb cb)
 }
 
 void
-TcpSocketMsgBase::SetAfterRetransmitCb (RetrCb cb)
+TcpSocketMsgBase::SetRetransmitCb (RetrCb cb)
 {
   NS_ASSERT (!cb.IsNull ());
-  m_afterRetrCallback = cb;
-}
-
-void
-TcpSocketMsgBase::SetBeforeRetransmitCb (RetrCb cb)
-{
-  NS_ASSERT (!cb.IsNull ());
-  m_beforeRetrCallback = cb;
+  m_retrCallback = cb;
 }
 
 void
@@ -978,11 +968,11 @@ TcpSocketMsgBase::ReceivedAck (Ptr<Packet> packet, const TcpHeader& tcpHeader)
 }
 
 void
-TcpSocketMsgBase::ReTxTimeout ()
+TcpSocketMsgBase::Retransmit ()
 {
-  m_beforeRetrCallback (m_tcb, this);
-  TcpSocketBase::ReTxTimeout ();
-  m_afterRetrCallback (m_tcb, this);
+  TcpSocketBase::Retransmit ();
+
+  m_retrCallback (m_tcb, this);
 }
 
 void
@@ -1035,8 +1025,8 @@ TcpSocketSmallAcks::GetTypeId (void)
   return tid;
 }
 
-/*
- * Send empty packet, copied/pasted from TcpSocketBase
+/**
+ * \brief Send empty packet, copied/pasted from TcpSocketBase
  *
  * The rationale for copying/pasting is that we need to edit a little the
  * code inside. Since there isn't a well-defined division of duties,
@@ -1203,3 +1193,4 @@ TcpSocketSmallAcks::Fork (void)
   return CopyObject<TcpSocketSmallAcks> (this);
 }
 
+} // namespace ns3

@@ -20,6 +20,7 @@
 
 #include "ns3/log.h"
 #include "ns3/uinteger.h"
+#include "ampdu-subframe-header.h"
 #include "mpdu-standard-aggregator.h"
 
 NS_LOG_COMPONENT_DEFINE ("MpduStandardAggregator");
@@ -64,7 +65,7 @@ MpduStandardAggregator::GetMaxAmpduSize (void) const
 }
 
 bool
-MpduStandardAggregator::Aggregate (Ptr<const Packet> packet, Ptr<Packet> aggregatedPacket) const
+MpduStandardAggregator::Aggregate (Ptr<const Packet> packet, Ptr<Packet> aggregatedPacket)
 {
   NS_LOG_FUNCTION (this);
   Ptr<Packet> currentPacket;
@@ -93,7 +94,7 @@ MpduStandardAggregator::Aggregate (Ptr<const Packet> packet, Ptr<Packet> aggrega
 }
 
 void
-MpduStandardAggregator::AggregateSingleMpdu (Ptr<const Packet> packet, Ptr<Packet> aggregatedPacket) const
+MpduStandardAggregator::AggregateVhtSingleMpdu (Ptr<const Packet> packet, Ptr<Packet> aggregatedPacket)
 {
   NS_LOG_FUNCTION (this);
   Ptr<Packet> currentPacket;
@@ -117,7 +118,7 @@ MpduStandardAggregator::AggregateSingleMpdu (Ptr<const Packet> packet, Ptr<Packe
 }
 
 void
-MpduStandardAggregator::AddHeaderAndPad (Ptr<Packet> packet, bool last, bool isSingleMpdu) const
+MpduStandardAggregator::AddHeaderAndPad (Ptr<Packet> packet, bool last, bool vhtSingleMpdu)
 {
   NS_LOG_FUNCTION (this);
   AmpduSubframeHeader currentHdr;
@@ -127,7 +128,7 @@ MpduStandardAggregator::AddHeaderAndPad (Ptr<Packet> packet, bool last, bool isS
   currentHdr.SetCrc (1);
   currentHdr.SetSig ();
   currentHdr.SetLength (packet->GetSize ());
-  if (isSingleMpdu)
+  if (vhtSingleMpdu)
     {
       currentHdr.SetEof (1);
     }
@@ -143,7 +144,7 @@ MpduStandardAggregator::AddHeaderAndPad (Ptr<Packet> packet, bool last, bool isS
 }
 
 bool
-MpduStandardAggregator::CanBeAggregated (uint32_t packetSize, Ptr<Packet> aggregatedPacket, uint8_t blockAckSize) const
+MpduStandardAggregator::CanBeAggregated (uint32_t packetSize, Ptr<Packet> aggregatedPacket, uint8_t blockAckSize)
 {
   uint32_t padding = CalculatePadding (aggregatedPacket);
   uint32_t actualSize = aggregatedPacket->GetSize ();
@@ -162,7 +163,7 @@ MpduStandardAggregator::CanBeAggregated (uint32_t packetSize, Ptr<Packet> aggreg
 }
 
 uint32_t
-MpduStandardAggregator::CalculatePadding (Ptr<const Packet> packet) const
+MpduStandardAggregator::CalculatePadding (Ptr<const Packet> packet)
 {
   return (4 - (packet->GetSize () % 4 )) % 4;
 }

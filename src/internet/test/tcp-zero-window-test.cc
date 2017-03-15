@@ -22,24 +22,13 @@
 #include "ns3/node.h"
 #include "ns3/log.h"
 
-using namespace ns3;
-
+namespace ns3 {
 
 NS_LOG_COMPONENT_DEFINE ("TcpZeroWindowTestSuite");
 
-/**
- * \ingroup internet-test
- * \ingroup tests
- *
- * \brief Testing the congestion avoidance increment on TCP ZeroWindow
- */
 class TcpZeroWindowTest : public TcpGeneralTest
 {
 public:
-  /**
-   * \brief Constructor.
-   * \param desc Test description.
-   */
   TcpZeroWindowTest (const std::string &desc);
 
 protected:
@@ -56,17 +45,14 @@ protected:
   virtual void ConfigureEnvironment ();
   virtual void ConfigureProperties ();
 
-  /**
-   * \brief Increase the receiver buffer size.
-   */
   void IncreaseBufSize ();
 
 protected:
-  EventId m_receivePktEvent;  //!< Receive packet event.
-  bool m_zeroWindowProbe;     //!< ZeroWindow probe.
-  bool m_windowUpdated;       //!< Window updated.
-  bool m_senderFinished;      //!< Send finished.
-  bool m_receiverFinished;    //!< Receiver finished.
+  EventId m_receivePktEvent;
+  bool m_zeroWindowProbe;
+  bool m_windowUpdated;
+  bool m_senderFinished;
+  bool m_receiverFinished;
 };
 
 TcpZeroWindowTest::TcpZeroWindowTest (const std::string &desc)
@@ -252,14 +238,9 @@ TcpZeroWindowTest::ProcessedAck (const Ptr<const TcpSocketState> tcb,
     }
 }
 
+//-----------------------------------------------------------------------------
 
-/**
- * \ingroup internet-test
- * \ingroup tests
- *
- * \brief TCP ZeroWindow TestSuite
- */
-class TcpZeroWindowTestSuite : public TestSuite
+static class TcpZeroWindowTestSuite : public TestSuite
 {
 public:
   TcpZeroWindowTestSuite () : TestSuite ("tcp-zero-window-test", UNIT)
@@ -267,7 +248,6 @@ public:
     AddTestCase (new TcpZeroWindowTest ("zero window test"),
                  TestCase::QUICK);
   }
-};
+} g_tcpZeroWindowTestSuite;
 
-static TcpZeroWindowTestSuite g_tcpZeroWindowTestSuite; //!< Static variable for test initialization
-
+} // namespace ns3

@@ -82,9 +82,7 @@ private:
 
 private:
   /**
-   * \brief Recalculate algorithm parameters
-   * \param tcb the socket state.
-   * \param rtt the round trip time.
+   * \brief Recalculate algorithm paramenters
    */
   void RecalcParam (Ptr<TcpSocketState> tcb, const Time& rtt);
 };

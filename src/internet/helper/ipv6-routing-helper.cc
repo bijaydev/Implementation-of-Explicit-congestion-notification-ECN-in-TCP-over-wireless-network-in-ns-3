@@ -36,59 +36,59 @@ Ipv6RoutingHelper::~Ipv6RoutingHelper ()
 }
 
 void
-Ipv6RoutingHelper::PrintRoutingTableAllAt (Time printTime, Ptr<OutputStreamWrapper> stream, Time::Unit unit)
+Ipv6RoutingHelper::PrintRoutingTableAllAt (Time printTime, Ptr<OutputStreamWrapper> stream)
 {
   for (uint32_t i = 0; i < NodeList::GetNNodes (); i++)
     {
       Ptr<Node> node = NodeList::GetNode (i);
-      Simulator::Schedule (printTime, &Ipv6RoutingHelper::Print, node, stream, unit);
+      Simulator::Schedule (printTime, &Ipv6RoutingHelper::Print, node, stream);
     }
 }
 
 void
-Ipv6RoutingHelper::PrintRoutingTableAllEvery (Time printInterval, Ptr<OutputStreamWrapper> stream, Time::Unit unit)
+Ipv6RoutingHelper::PrintRoutingTableAllEvery (Time printInterval, Ptr<OutputStreamWrapper> stream)
 {
   for (uint32_t i = 0; i < NodeList::GetNNodes (); i++)
     {
       Ptr<Node> node = NodeList::GetNode (i);
-      Simulator::Schedule (printInterval, &Ipv6RoutingHelper::PrintEvery, printInterval, node, stream, unit);
+      Simulator::Schedule (printInterval, &Ipv6RoutingHelper::PrintEvery, printInterval, node, stream);
     }
 }
 
 void
-Ipv6RoutingHelper::PrintRoutingTableAt (Time printTime, Ptr<Node> node, Ptr<OutputStreamWrapper> stream, Time::Unit unit)
+Ipv6RoutingHelper::PrintRoutingTableAt (Time printTime, Ptr<Node> node, Ptr<OutputStreamWrapper> stream)
 {
-  Simulator::Schedule (printTime, &Ipv6RoutingHelper::Print, node, stream, unit);
+  Simulator::Schedule (printTime, &Ipv6RoutingHelper::Print, node, stream);
 }
 
 void
-Ipv6RoutingHelper::PrintRoutingTableEvery (Time printInterval,Ptr<Node> node, Ptr<OutputStreamWrapper> stream, Time::Unit unit)
+Ipv6RoutingHelper::PrintRoutingTableEvery (Time printInterval,Ptr<Node> node, Ptr<OutputStreamWrapper> stream)
 {
-  Simulator::Schedule (printInterval, &Ipv6RoutingHelper::PrintEvery, printInterval, node, stream, unit);
+  Simulator::Schedule (printInterval, &Ipv6RoutingHelper::PrintEvery, printInterval, node, stream);
 }
 
 void
-Ipv6RoutingHelper::Print (Ptr<Node> node, Ptr<OutputStreamWrapper> stream, Time::Unit unit)
+Ipv6RoutingHelper::Print (Ptr<Node> node, Ptr<OutputStreamWrapper> stream)
 {
   Ptr<Ipv6> ipv6 = node->GetObject<Ipv6> ();
   if (ipv6)
     {
       Ptr<Ipv6RoutingProtocol> rp = ipv6->GetRoutingProtocol ();
       NS_ASSERT (rp);
-      rp->PrintRoutingTable (stream, unit);
+      rp->PrintRoutingTable (stream);
     }
 }
 
 void
-Ipv6RoutingHelper::PrintEvery (Time printInterval, Ptr<Node> node, Ptr<OutputStreamWrapper> stream, Time::Unit unit)
+Ipv6RoutingHelper::PrintEvery (Time printInterval, Ptr<Node> node, Ptr<OutputStreamWrapper> stream)
 {
   Ptr<Ipv6> ipv6 = node->GetObject<Ipv6> ();
   if (ipv6)
     {
       Ptr<Ipv6RoutingProtocol> rp = ipv6->GetRoutingProtocol ();
       NS_ASSERT (rp);
-      rp->PrintRoutingTable (stream, unit);
-      Simulator::Schedule (printInterval, &Ipv6RoutingHelper::PrintEvery, printInterval, node, stream, unit);
+      rp->PrintRoutingTable (stream);
+      Simulator::Schedule (printInterval, &Ipv6RoutingHelper::PrintEvery, printInterval, node, stream);
     }
 }
 

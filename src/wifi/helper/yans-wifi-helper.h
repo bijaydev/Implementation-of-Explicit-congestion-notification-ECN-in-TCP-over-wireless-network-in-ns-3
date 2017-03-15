@@ -22,6 +22,7 @@
 #define YANS_WIFI_HELPER_H
 
 #include "wifi-helper.h"
+#include "ns3/trace-helper.h"
 #include "ns3/yans-wifi-channel.h"
 
 namespace ns3 {
@@ -47,7 +48,6 @@ public:
    * a channel model with a propagation delay equal to a constant, the speed of light,
    * and a propagation loss based on a log distance model with a reference loss of 46.6777 dB
    * at reference distance of 1m.
-   * \returns YansWifiChannelHelper
    */
   static YansWifiChannelHelper Default (void);
 
@@ -142,8 +142,8 @@ public:
 
 
 private:
-  std::vector<ObjectFactory> m_propagationLoss; ///< vector of propagation loss models
-  ObjectFactory m_propagationDelay; ///< propagation delay model
+  std::vector<ObjectFactory> m_propagationLoss;
+  ObjectFactory m_propagationDelay;
 };
 
 
@@ -194,7 +194,7 @@ private:
    */
   virtual Ptr<WifiPhy> Create (Ptr<Node> node, Ptr<NetDevice> device) const;
 
-  Ptr<YansWifiChannel> m_channel; ///< yans wifi channel
+  Ptr<YansWifiChannel> m_channel;
 };
 
 } //namespace ns3

@@ -323,11 +323,6 @@ public:
    */
   void SetCellId (uint16_t cellId);
 
-  /**
-   *
-   * \param componentCarrierId the component carrier id
-   */
-  void SetComponentCarrierId (uint8_t componentCarrierId);
 
   /**
   *
@@ -473,7 +468,6 @@ private:
 
   uint16_t m_cellId;
   
-  uint8_t m_componentCarrierId;
   expectedTbs_t m_expectedTbs;
   SpectrumValue m_sinrPerceived;
 

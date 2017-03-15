@@ -48,7 +48,8 @@ class LtePathlossModelSystemTestCase : public TestCase
     LtePathlossModelSystemTestCase ();
     virtual ~LtePathlossModelSystemTestCase ();
     
-    void DlScheduling (DlSchedulingCallbackInfo dlInfo);
+    void DlScheduling (uint32_t frameNo, uint32_t subframeNo, uint16_t rnti,
+                       uint8_t mcsTb1, uint16_t sizeTb1, uint8_t mcsTb2, uint16_t sizeTb2);
                        
   private:
     virtual void DoRun (void);

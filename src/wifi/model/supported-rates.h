@@ -21,8 +21,10 @@
 #ifndef SUPPORTED_RATES_H
 #define SUPPORTED_RATES_H
 
+#include <stdint.h>
+#include <ostream>
 #include "ns3/buffer.h"
-#include "wifi-information-element.h"
+#include "ns3/wifi-information-element.h"
 
 namespace ns3 {
 
@@ -52,36 +54,11 @@ public:
    */
   ExtendedSupportedRatesIE (SupportedRates *rates);
 
-  /**
-   * Set supported rates.
-   *
-   * \param rates the supported rates
-   */
   void SetSupportedRates (SupportedRates *rates);
 
-  /**
-   * Get element ID.
-   * \returns the wifi information element ID
-   */
   WifiInformationElementId ElementId () const;
-  /**
-   * Get information field size.
-   * \returns the information field size
-   */
   uint8_t GetInformationFieldSize () const;
-  /**
-   * Serialize information field.
-   *
-   * \param start the iterator
-   */
   void SerializeInformationField (Buffer::Iterator start) const;
-  /**
-   * Deserialize information field.
-   *
-   * \param start the iterator
-   * \param length the field length
-   * \returns the information field
-   */
   uint8_t DeserializeInformationField (Buffer::Iterator start,
                                        uint8_t length);
 
@@ -104,8 +81,6 @@ public:
    *         information element
    */
   uint16_t GetSerializedSize () const;
-
-
 private:
   /**
    * This member points to the SupportedRates object that contains the
@@ -131,9 +106,7 @@ class SupportedRates : public WifiInformationElement
 public:
   SupportedRates ();
 
-  /// type conversion operator
   SupportedRates (const SupportedRates &);
-  /// assignment operator
   SupportedRates& operator= (const SupportedRates&);
 
 /**
@@ -222,7 +195,7 @@ public:
    * extended.
    */
   friend class ExtendedSupportedRatesIE;
-  ExtendedSupportedRatesIE extended; //!< extended suppoted rates info element
+  ExtendedSupportedRatesIE extended;
 
 
 private:

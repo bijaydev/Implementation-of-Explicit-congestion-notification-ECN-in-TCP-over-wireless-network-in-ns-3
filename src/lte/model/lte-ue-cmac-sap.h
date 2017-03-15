@@ -99,12 +99,6 @@ public:
    */
   virtual void Reset () = 0;
   
-  /**
-   *
-   * \param rnti the cell-specific UE identifier
-   */
-  virtual void SetRnti (uint16_t rnti) = 0;
-
 };
 
 

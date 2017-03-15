@@ -17,13 +17,18 @@
  */
 
 #include "ns3/test.h"
+#include "ns3/packet.h"
+#include "ns3/tag.h"
+#include "ns3/packet-burst.h"
 #include "ns3/spectrum-wifi-helper.h"
 #include "ns3/wifi-spectrum-value-helper.h"
 #include "ns3/spectrum-wifi-phy.h"
+#include "ns3/interference-helper.h"
 #include "ns3/nist-error-rate-model.h"
 #include "ns3/wifi-mac-header.h"
 #include "ns3/wifi-mac-trailer.h"
 #include "ns3/wifi-phy-tag.h"
+#include "ns3/wifi-phy-standard.h"
 #include "ns3/wifi-spectrum-signal-parameters.h"
 
 using namespace ns3;
@@ -32,51 +37,19 @@ static const uint16_t CHANNEL_NUMBER = 36;
 static const uint32_t FREQUENCY = 5180; // MHz
 static const uint32_t CHANNEL_WIDTH = 20; // MHz
 
-/**
- * \ingroup wifi-test
- * \ingroup tests
- *
- * \brief Spectrum Wifi Phy Basic Test
- */
 class SpectrumWifiPhyBasicTest : public TestCase
 {
 public:
   SpectrumWifiPhyBasicTest ();
-  /**
-   * Constructor
-   *
-   * \param name reference name
-   */
   SpectrumWifiPhyBasicTest (std::string name);
   virtual ~SpectrumWifiPhyBasicTest ();
 protected:
   virtual void DoSetup (void);
-  Ptr<SpectrumWifiPhy> m_phy; ///< Phy
-  /**
-   * Make signal function
-   * \param txPowerWatts the transmit power in watts
-   * \returns Ptr<SpectrumSignalParameters>
-   */
+  Ptr<SpectrumWifiPhy> m_phy;
   Ptr<SpectrumSignalParameters> MakeSignal (double txPowerWatts);
-  /**
-   * Send signal function
-   * \param txPowerWatts the transmit power in watts
-   */
   void SendSignal (double txPowerWatts);
-  /**
-   * Spectrum wifi receive success function
-   * \param p the packet
-   * \param snr the SNR
-   * \param txVector the transmit vector
-   */
-  void SpectrumWifiPhyRxSuccess (Ptr<Packet> p, double snr, WifiTxVector txVector);
-  /**
-   * Spectrum wifi receive failure function
-   * \param p the packet
-   * \param snr the SNR
-   */
-  void SpectrumWifiPhyRxFailure (Ptr<Packet> p, double snr);
-  uint32_t m_count; ///< count
+  void SpectrumWifiPhyReceiver (bool rxSucceeded);
+  uint32_t m_count;
 private:
   virtual void DoRun (void);
 };
@@ -94,11 +67,14 @@ SpectrumWifiPhyBasicTest::SpectrumWifiPhyBasicTest (std::string name)
 }
 
 // Make a Wi-Fi signal to inject directly to the StartRx() method
-Ptr<SpectrumSignalParameters>
+Ptr<SpectrumSignalParameters> 
 SpectrumWifiPhyBasicTest::MakeSignal (double txPowerWatts)
 {
-  WifiTxVector txVector = WifiTxVector (WifiPhy::GetOfdmRate6Mbps (), 0, 0, WIFI_PREAMBLE_LONG, false, 1, 1, 0, 20, false, false);
-  MpduType mpdutype = NORMAL_MPDU;
+  WifiPreamble preamble;
+  preamble = WIFI_PREAMBLE_LONG;
+  WifiMode mode = WifiPhy::GetOfdmRate6Mbps ();
+  WifiTxVector txVector = WifiTxVector (mode, 0, 0, false, 1, 0, 20000000, false, false);
+  enum mpduType mpdutype = NORMAL_MPDU;
 
   Ptr<Packet> pkt = Create<Packet> (1000);
   WifiMacHeader hdr;
@@ -107,12 +83,12 @@ SpectrumWifiPhyBasicTest::MakeSignal (double txPowerWatts)
   hdr.SetType (WIFI_MAC_QOSDATA);
   hdr.SetQosTid (0);
   uint32_t size = pkt->GetSize () + hdr.GetSize () + trailer.GetSerializedSize ();
-  Time txDuration = m_phy->CalculateTxDuration (size, txVector, m_phy->GetFrequency (), mpdutype, 0);
+  Time txDuration = m_phy->CalculateTxDuration (size, txVector, preamble, m_phy->GetFrequency(), mpdutype, 0);
   hdr.SetDuration (txDuration);
 
   pkt->AddHeader (hdr);
   pkt->AddTrailer (trailer);
-  WifiPhyTag tag (txVector, mpdutype);
+  WifiPhyTag tag (txVector, preamble, mpdutype);
   pkt->AddPacketTag (tag);
   Ptr<SpectrumValue> txPowerSpectrum = WifiSpectrumValueHelper::CreateOfdmTxPowerSpectralDensity (FREQUENCY, CHANNEL_WIDTH, txPowerWatts);
   Ptr<WifiSpectrumSignalParameters> txParams = Create<WifiSpectrumSignalParameters> ();
@@ -131,13 +107,7 @@ SpectrumWifiPhyBasicTest::SendSignal (double txPowerWatts)
 }
 
 void
-SpectrumWifiPhyBasicTest::SpectrumWifiPhyRxSuccess (Ptr<Packet> p, double snr, WifiTxVector txVector)
-{
-  m_count++;
-}
-
-void
-SpectrumWifiPhyBasicTest::SpectrumWifiPhyRxFailure (Ptr<Packet> p, double snr)
+SpectrumWifiPhyBasicTest::SpectrumWifiPhyReceiver (bool rxSucceeded)
 {
   m_count++;
 }
@@ -157,8 +127,7 @@ SpectrumWifiPhyBasicTest::DoSetup (void)
   m_phy->SetErrorRateModel (error);
   m_phy->SetChannelNumber (CHANNEL_NUMBER);
   m_phy->SetFrequency (FREQUENCY);
-  m_phy->SetReceiveOkCallback (MakeCallback (&SpectrumWifiPhyBasicTest::SpectrumWifiPhyRxSuccess, this));
-  m_phy->SetReceiveErrorCallback (MakeCallback (&SpectrumWifiPhyBasicTest::SpectrumWifiPhyRxFailure, this));
+  m_phy->SetPacketReceivedCallback (MakeCallback (&SpectrumWifiPhyBasicTest::SpectrumWifiPhyReceiver, this));
   //Bug 2460: CcaMode1Threshold default should be set to -62 dBm when using Spectrum
   m_phy->SetCcaMode1Threshold (-62.0);
 }
@@ -169,24 +138,18 @@ SpectrumWifiPhyBasicTest::DoRun (void)
 {
   double txPowerWatts = 0.010;
   // Send packets spaced 1 second apart; all should be received
-  Simulator::Schedule (Seconds (1), &SpectrumWifiPhyBasicTest::SendSignal, this, txPowerWatts);
-  Simulator::Schedule (Seconds (2), &SpectrumWifiPhyBasicTest::SendSignal, this, txPowerWatts);
-  Simulator::Schedule (Seconds (3), &SpectrumWifiPhyBasicTest::SendSignal, this, txPowerWatts);
+  Simulator::Schedule (Seconds (1), &SpectrumWifiPhyBasicTest::SendSignal, this, txPowerWatts); 
+  Simulator::Schedule (Seconds (2), &SpectrumWifiPhyBasicTest::SendSignal, this, txPowerWatts); 
+  Simulator::Schedule (Seconds (3), &SpectrumWifiPhyBasicTest::SendSignal, this, txPowerWatts); 
   // Send packets spaced 1 microsecond second apart; only one should be received
-  Simulator::Schedule (MicroSeconds (4000000), &SpectrumWifiPhyBasicTest::SendSignal, this, txPowerWatts);
-  Simulator::Schedule (MicroSeconds (4000001), &SpectrumWifiPhyBasicTest::SendSignal, this, txPowerWatts);
+  Simulator::Schedule (MicroSeconds (4000000), &SpectrumWifiPhyBasicTest::SendSignal, this, txPowerWatts); 
+  Simulator::Schedule (MicroSeconds (4000001), &SpectrumWifiPhyBasicTest::SendSignal, this, txPowerWatts); 
   Simulator::Run ();
   Simulator::Destroy ();
 
   NS_TEST_ASSERT_MSG_EQ (m_count, 4, "Didn't receive right number of packets");
 }
 
-/**
- * \ingroup wifi-test
- * \ingroup tests
- *
- * \brief Test Phy Listener
- */
 class TestPhyListener : public ns3::WifiPhyListener
 {
 public:
@@ -194,11 +157,11 @@ public:
    * Create a test PhyListener
    *
    */
-  TestPhyListener (void)
-    : m_notifyRxStart (0),
-      m_notifyRxEndOk (0),
-      m_notifyRxEndError (0),
-      m_notifyMaybeCcaBusyStart (0)
+  TestPhyListener (void) :
+    m_notifyRxStart (0),
+    m_notifyRxEndOk (0),
+    m_notifyRxEndError (0),
+    m_notifyMaybeCcaBusyStart (0)
   {
   }
   virtual ~TestPhyListener ()
@@ -232,19 +195,14 @@ public:
   virtual void NotifyWakeup (void)
   {
   }
-  uint32_t m_notifyRxStart; ///< notify receive start
-  uint32_t m_notifyRxEndOk; ///< notify receive end OK
-  uint32_t m_notifyRxEndError; ///< notify receive end error
-  uint32_t m_notifyMaybeCcaBusyStart; ///< notify maybe CCA busy start
+  uint32_t m_notifyRxStart;
+  uint32_t m_notifyRxEndOk;
+  uint32_t m_notifyRxEndError;
+  uint32_t m_notifyMaybeCcaBusyStart;
 private:
 };
 
-/**
- * \ingroup wifi-test
- * \ingroup tests
- *
- * \brief Spectrum Wifi Phy Listener Test
- */
+
 class SpectrumWifiPhyListenerTest : public SpectrumWifiPhyBasicTest
 {
 public:
@@ -253,7 +211,7 @@ public:
 private:
   virtual void DoSetup (void);
   virtual void DoRun (void);
-  TestPhyListener* m_listener; ///< listener
+  TestPhyListener* m_listener;
 };
 
 SpectrumWifiPhyListenerTest::SpectrumWifiPhyListenerTest ()
@@ -277,7 +235,7 @@ void
 SpectrumWifiPhyListenerTest::DoRun (void)
 {
   double txPowerWatts = 0.010;
-  Simulator::Schedule (Seconds (1), &SpectrumWifiPhyListenerTest::SendSignal, this, txPowerWatts);
+  Simulator::Schedule (Seconds (1), &SpectrumWifiPhyListenerTest::SendSignal, this, txPowerWatts); 
   Simulator::Run ();
 
   NS_TEST_ASSERT_MSG_EQ (m_count, 1, "Didn't receive right number of packets");
@@ -289,12 +247,6 @@ SpectrumWifiPhyListenerTest::DoRun (void)
   delete m_listener;
 }
 
-/**
- * \ingroup wifi-test
- * \ingroup tests
- *
- * \brief Spectrum Wifi Phy Test Suite
- */
 class SpectrumWifiPhyTestSuite : public TestSuite
 {
 public:
@@ -308,4 +260,4 @@ SpectrumWifiPhyTestSuite::SpectrumWifiPhyTestSuite ()
   AddTestCase (new SpectrumWifiPhyListenerTest, TestCase::QUICK);
 }
 
-static SpectrumWifiPhyTestSuite spectrumWifiPhyTestSuite; ///< the test suite
+static SpectrumWifiPhyTestSuite spectrumWifiPhyTestSuite;

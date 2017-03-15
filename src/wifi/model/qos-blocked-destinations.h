@@ -22,7 +22,7 @@
 #ifndef QOS_BLOCKED_DESTINATIONS_H
 #define QOS_BLOCKED_DESTINATIONS_H
 
-#include <set>
+#include <list>
 #include "ns3/mac48-address.h"
 
 namespace ns3 {
@@ -67,7 +67,19 @@ public:
 
 
 private:
-  std::set < std::pair < Mac48Address, uint8_t >> m_blockedQosPackets; ///< blocked QOS packets
+  /**
+   * typedef for a list of <Mac48Address, TID> pair.
+   */
+  typedef std::list<std::pair<Mac48Address, uint8_t> > BlockedPackets;
+  /**
+   * typedef for an iterator of BlockedPackets
+   */
+  typedef std::list<std::pair<Mac48Address, uint8_t> >::iterator BlockedPacketsI;
+  /**
+   * typedef for a constan iterator of BlockedPackets
+   */
+  typedef std::list<std::pair<Mac48Address, uint8_t> >::const_iterator BlockedPacketsCI;
+  BlockedPackets m_blockedQosPackets;
 };
 
 } //namespace ns3

@@ -24,6 +24,7 @@
 #include "ns3/simulator.h"
 #include "ns3/simple-channel.h"
 #include "ns3/simple-net-device.h"
+#include "ns3/drop-tail-queue.h"
 #include "ns3/socket.h"
 #include "ns3/boolean.h"
 #include "ns3/enum.h"
@@ -47,37 +48,18 @@
 
 using namespace ns3;
 
-/**
- * \ingroup internet-test
- * \ingroup tests
- *
- * \brief IPv4 RIP Test
- */
+// Ipv4RipTest
+
 class Ipv4RipTest : public TestCase
 {
-  Ptr<Packet> m_receivedPacket; //!< Received packet
-
-  /**
-   * \brief Send data.
-   * \param socket The sending socket.
-   * \param to Destination address.
-   */
+  Ptr<Packet> m_receivedPacket;
   void DoSendData (Ptr<Socket> socket, std::string to);
-  /**
-   * \brief Send data.
-   * \param socket The sending socket.
-   * \param to Destination address.
-   */
   void SendData (Ptr<Socket> socket, std::string to);
 
 public:
   virtual void DoRun (void);
   Ipv4RipTest ();
 
-  /**
-   * \brief Receive data.
-   * \param socket The receiving socket.
-   */
   void ReceivePkt (Ptr<Socket> socket);
 };
 
@@ -268,38 +250,18 @@ Ipv4RipTest::DoRun (void)
   Simulator::Destroy ();
 }
 
+// Ipv4RipCountToInfinityTest
 
-/**
- * \ingroup internet-test
- * \ingroup tests
- *
- * \brief IPv4 RIP count to infinity Test
- */
 class Ipv4RipCountToInfinityTest : public TestCase
 {
-  Ptr<Packet> m_receivedPacket; //!< Received packet
-
-  /**
-   * \brief Send data.
-   * \param socket The sending socket.
-   * \param to Destination address.
-   */
+  Ptr<Packet> m_receivedPacket;
   void DoSendData (Ptr<Socket> socket, std::string to);
-  /**
-   * \brief Send data.
-   * \param socket The sending socket.
-   * \param to Destination address.
-   */
   void SendData (Ptr<Socket> socket, std::string to);
 
 public:
   virtual void DoRun (void);
   Ipv4RipCountToInfinityTest ();
 
-  /**
-   * \brief Receive data.
-   * \param socket The receiving socket.
-   */
   void ReceivePkt (Ptr<Socket> socket);
 };
 
@@ -495,31 +457,17 @@ Ipv4RipCountToInfinityTest::DoRun (void)
   Simulator::Destroy ();
 }
 
+// Ipv4RipSplitHorizonStrategyTest
 
-/**
- * \ingroup internet-test
- * \ingroup tests
- *
- * \brief IPv4 RIP SplitHorizon strategy Test
- */
 class Ipv4RipSplitHorizonStrategyTest : public TestCase
 {
-  Rip::SplitHorizonType_e m_setStrategy;      //!< Strategy set.
-  Rip::SplitHorizonType_e m_detectedStrategy; //!< Strategy detected.
+  Rip::SplitHorizonType_e m_setStrategy;
+  Rip::SplitHorizonType_e m_detectedStrategy;
 
 public:
   virtual void DoRun (void);
-
-  /**
-   * \brief Constructor.
-   * \param strategy The SplitHorizon strategy.
-   */
   Ipv4RipSplitHorizonStrategyTest (Rip::SplitHorizonType_e strategy);
 
-  /**
-   * \brief Receive data.
-   * \param socket The receiving socket.
-   */
   void ReceivePktProbe (Ptr<Socket> socket);
 };
 
@@ -682,12 +630,8 @@ Ipv4RipSplitHorizonStrategyTest::DoRun (void)
 }
 
 
-/**
- * \ingroup internet-test
- * \ingroup tests
- *
- * \brief IPv4 RIP TestSuite
- */
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 class Ipv4RipTestSuite : public TestSuite
 {
 public:
@@ -699,6 +643,4 @@ public:
     AddTestCase (new Ipv4RipSplitHorizonStrategyTest (Rip::SPLIT_HORIZON), TestCase::QUICK);
     AddTestCase (new Ipv4RipSplitHorizonStrategyTest (Rip::NO_SPLIT_HORIZON), TestCase::QUICK);
   }
-};
-
-static Ipv4RipTestSuite g_ipv4ripTestSuite; //!< Static variable for test initialization
+} g_ipv4ripTestSuite;

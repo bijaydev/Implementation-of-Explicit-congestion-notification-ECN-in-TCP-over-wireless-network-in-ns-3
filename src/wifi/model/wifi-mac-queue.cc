@@ -21,6 +21,7 @@
  */
 
 #include "ns3/simulator.h"
+#include "ns3/packet.h"
 #include "ns3/uinteger.h"
 #include "ns3/enum.h"
 #include "wifi-mac-queue.h"
@@ -246,7 +247,7 @@ WifiMacQueue::Flush (void)
 }
 
 Mac48Address
-WifiMacQueue::GetAddressForPacket (WifiMacHeader::AddressType type, PacketQueueI it)
+WifiMacQueue::GetAddressForPacket (enum WifiMacHeader::AddressType type, PacketQueueI it)
 {
   if (type == WifiMacHeader::ADDR1)
     {

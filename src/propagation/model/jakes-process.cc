@@ -95,7 +95,7 @@ JakesProcess::ConstructOscillators ()
   NS_ASSERT (m_jakes);
   // Initial phase is common for all oscillators:
   double phi = m_jakes->GetUniformRandomVariable ()->GetValue ();
-  // Theta is common for all oscillators:
+  // Theta is common for all oscillatoer:
   double theta = m_jakes->GetUniformRandomVariable ()->GetValue ();
   for (unsigned int i = 0; i < m_nOscillators; i++)
     {

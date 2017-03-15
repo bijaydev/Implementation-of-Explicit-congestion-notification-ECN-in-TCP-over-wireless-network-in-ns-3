@@ -19,16 +19,15 @@
  *          Ghada Badawy <gbadawy@gmail.com>
  */
 
-#include "wifi-tx-vector.h"
+#include "ns3/wifi-tx-vector.h"
+#include "ns3/fatal-error.h"
 
 namespace ns3 {
 
 WifiTxVector::WifiTxVector ()
   : m_retries (0),
-    m_preamble (WIFI_PREAMBLE_NONE),
     m_channelWidth (20),
-    m_guardInterval (800),
-    m_nTx (1),
+    m_shortGuardInterval (false),
     m_nss (1),
     m_ness (0),
     m_aggregation (false),
@@ -38,24 +37,14 @@ WifiTxVector::WifiTxVector ()
 {
 }
 
-WifiTxVector::WifiTxVector (WifiMode mode,
-                            uint8_t powerLevel,
-                            uint8_t retries,
-                            WifiPreamble preamble,
-                            uint16_t guardInterval,
-                            uint8_t nTx,
-                            uint8_t nss,
-                            uint8_t ness,
-                            uint8_t channelWidth,
-                            bool aggregation,
-                            bool stbc)
+WifiTxVector::WifiTxVector (WifiMode mode, uint8_t powerLevel, uint8_t retries,
+                            bool shortGuardInterval, uint8_t nss, uint8_t ness,
+                            uint32_t channelWidth, bool aggregation, bool stbc)
   : m_mode (mode),
     m_txPowerLevel (powerLevel),
     m_retries (retries),
-    m_preamble (preamble),
     m_channelWidth (channelWidth),
-    m_guardInterval (guardInterval),
-    m_nTx (nTx),
+    m_shortGuardInterval (shortGuardInterval),
     m_nss (nss),
     m_ness (ness),
     m_aggregation (aggregation),
@@ -91,28 +80,16 @@ WifiTxVector::GetRetries (void) const
   return m_retries;
 }
 
-WifiPreamble
-WifiTxVector::GetPreambleType (void) const
-{
-  return m_preamble;
-}
-
-uint8_t
+uint32_t
 WifiTxVector::GetChannelWidth (void) const
 {
   return m_channelWidth;
 }
 
-uint16_t
-WifiTxVector::GetGuardInterval (void) const
+bool
+WifiTxVector::IsShortGuardInterval (void) const
 {
-  return m_guardInterval;
-}
-
-uint8_t
-WifiTxVector::GetNTx (void) const
-{
-  return m_nTx;
+  return m_shortGuardInterval;
 }
 
 uint8_t
@@ -160,27 +137,15 @@ WifiTxVector::SetRetries (uint8_t retries)
 }
 
 void
-WifiTxVector::SetPreambleType (WifiPreamble preamble)
-{
-  m_preamble = preamble;
-}
-
-void
-WifiTxVector::SetChannelWidth (uint8_t channelWidth)
+WifiTxVector::SetChannelWidth (uint32_t channelWidth)
 {
   m_channelWidth = channelWidth;
 }
 
 void
-WifiTxVector::SetGuardInterval (uint16_t guardInterval)
+WifiTxVector::SetShortGuardInterval (bool guardinterval)
 {
-  m_guardInterval = guardInterval;
-}
-
-void
-WifiTxVector::SetNTx (uint8_t nTx)
-{
-  m_nTx = nTx;
+  m_shortGuardInterval = guardinterval;
 }
 
 void
@@ -210,14 +175,12 @@ WifiTxVector::SetStbc (bool stbc)
 std::ostream & operator << ( std::ostream &os, const WifiTxVector &v)
 {
   os << "mode: " << v.GetMode () <<
-    " txpwrlvl: " << (uint16_t)v.GetTxPowerLevel () <<
-    " retries: " << (uint16_t)v.GetRetries () <<
-    " preamble: " << v.GetPreambleType () <<
-    " channel width: " << (uint16_t)v.GetChannelWidth () <<
-    " GI: " << v.GetGuardInterval () <<
-    " NTx: " << (uint16_t)v.GetNTx () <<
-    " Nss: " << (uint16_t)v.GetNss () <<
-    " Ness: " << (uint16_t)v.GetNess () <<
+    " txpwrlvl: " << (uint32_t)v.GetTxPowerLevel () <<
+    " retries: " << (uint32_t)v.GetRetries () <<
+    " channel width: " << v.GetChannelWidth () <<
+    " Short GI: " << v.IsShortGuardInterval () <<
+    " Nss: " << (uint32_t)v.GetNss () <<
+    " Ness: " << (uint32_t)v.GetNess () <<
     " MPDU aggregation: " << v.IsAggregation () <<
     " STBC: " << v.IsStbc ();
   return os;

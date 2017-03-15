@@ -151,6 +151,8 @@ MultiModelSpectrumChannel::AddRx (Ptr<SpectrumPhy> phy)
 
   SpectrumModelUid_t rxSpectrumModelUid = rxSpectrumModel->GetUid ();
 
+  std::vector<Ptr<SpectrumPhy> >::const_iterator it;
+
   // remove a previous entry of this phy if it exists
   // we need to scan for all rxSpectrumModel values since we don't
   // know which spectrum model the phy had when it was previously added
@@ -188,16 +190,11 @@ MultiModelSpectrumChannel::AddRx (Ptr<SpectrumPhy> phy)
            ++txInfoIterator)
         {
           Ptr<const SpectrumModel> txSpectrumModel = txInfoIterator->second.m_txSpectrumModel;
-          SpectrumModelUid_t txSpectrumModelUid = txSpectrumModel->GetUid ();
-
-          if (rxSpectrumModelUid != txSpectrumModelUid && !txSpectrumModel->IsOrthogonal (*rxSpectrumModel))
-            {
-              NS_LOG_LOGIC ("Creating converter between SpectrumModelUid " << txSpectrumModel->GetUid () << " and " << rxSpectrumModelUid);
-              SpectrumConverter converter (txSpectrumModel, rxSpectrumModel);
-              std::pair<SpectrumConverterMap_t::iterator, bool> ret2;
-              ret2 = txInfoIterator->second.m_spectrumConverterMap.insert (std::make_pair (rxSpectrumModelUid, converter));
-              NS_ASSERT (ret2.second);
-            }
+          NS_LOG_LOGIC ("Creating converters between SpectrumModelUids " << txSpectrumModel->GetUid () << " and " << rxSpectrumModelUid );
+          SpectrumConverter converter (txSpectrumModel, rxSpectrumModel);
+          std::pair<SpectrumConverterMap_t::iterator, bool> ret2;
+          ret2 = txInfoIterator->second.m_spectrumConverterMap.insert (std::make_pair (rxSpectrumModelUid, converter));
+          NS_ASSERT (ret2.second);
         }
     }
   else
@@ -234,9 +231,9 @@ MultiModelSpectrumChannel::FindAndEventuallyAddTxSpectrumModel (Ptr<const Spectr
           Ptr<const SpectrumModel> rxSpectrumModel = rxInfoIterator->second.m_rxSpectrumModel;
           SpectrumModelUid_t rxSpectrumModelUid = rxSpectrumModel->GetUid ();
 
-          if (rxSpectrumModelUid != txSpectrumModelUid && !txSpectrumModel->IsOrthogonal (*rxSpectrumModel))
+          if (rxSpectrumModelUid != txSpectrumModelUid)
             {
-              NS_LOG_LOGIC ("Creating converter between SpectrumModelUid " << txSpectrumModelUid << " and " << rxSpectrumModelUid);
+              NS_LOG_LOGIC ("Creating converters between SpectrumModelUids " << txSpectrumModelUid << " and " << rxSpectrumModelUid );
 
               SpectrumConverter converter (txSpectrumModel, rxSpectrumModel);
               std::pair<SpectrumConverterMap_t::iterator, bool> ret2;
@@ -292,11 +289,7 @@ MultiModelSpectrumChannel::StartTx (Ptr<SpectrumSignalParameters> txParams)
         {
           NS_LOG_LOGIC (" converting txPowerSpectrum SpectrumModelUids" << txSpectrumModelUid << " --> " << rxSpectrumModelUid);
           SpectrumConverterMap_t::const_iterator rxConverterIterator = txInfoIteratorerator->second.m_spectrumConverterMap.find (rxSpectrumModelUid);
-          if (rxConverterIterator == txInfoIteratorerator->second.m_spectrumConverterMap.end ())
-            {
-              // No converter means TX SpectrumModel is orthogonal to RX SpectrumModel
-              continue;
-            }
+          NS_ASSERT (rxConverterIterator != txInfoIteratorerator->second.m_spectrumConverterMap.end ());
           convertedTxPowerSpectrum = rxConverterIterator->second.Convert (txParams->psd);
         }
 

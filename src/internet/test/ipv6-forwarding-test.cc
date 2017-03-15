@@ -25,6 +25,7 @@
 #include "ns3/simple-channel.h"
 #include "ns3/simple-net-device.h"
 #include "ns3/simple-net-device-helper.h"
+#include "ns3/drop-tail-queue.h"
 #include "ns3/socket.h"
 #include "ns3/boolean.h"
 
@@ -45,37 +46,16 @@
 
 using namespace ns3;
 
-/**
- * \ingroup internet-test
- * \ingroup tests
- *
- * \brief IPv6 Forwarding Test
- */
 class Ipv6ForwardingTest : public TestCase
 {
-  Ptr<Packet> m_receivedPacket;   //!< Received packet.
-
-  /**
-   * \brief Send data.
-   * \param socket The sending socket.
-   * \param to Destination address.
-   */
+  Ptr<Packet> m_receivedPacket;
   void DoSendData (Ptr<Socket> socket, std::string to);
-  /**
-   * \brief Send data.
-   * \param socket The sending socket.
-   * \param to Destination address.
-   */
   void SendData (Ptr<Socket> socket, std::string to);
 
 public:
   virtual void DoRun (void);
   Ipv6ForwardingTest ();
 
-  /**
-   * \brief Receive data.
-   * \param socket The receiving socket.
-   */
   void ReceivePkt (Ptr<Socket> socket);
 };
 
@@ -210,12 +190,8 @@ Ipv6ForwardingTest::DoRun (void)
 }
 
 
-/**
- * \ingroup internet-test
- * \ingroup tests
- *
- * \brief IPv6 Forwarding TestSuite
- */
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 class Ipv6ForwardingTestSuite : public TestSuite
 {
 public:
@@ -223,6 +199,4 @@ public:
   {
     AddTestCase (new Ipv6ForwardingTest, TestCase::QUICK);
   }
-};
-
-static Ipv6ForwardingTestSuite g_ipv6forwardingTestSuite; //!< Static variable for test initialization
+} g_ipv6forwardingTestSuite;

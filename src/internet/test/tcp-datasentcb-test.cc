@@ -21,30 +21,26 @@
 #include "ns3/node.h"
 #include "ns3/log.h"
 
-using namespace ns3;
+namespace ns3 {
 
 NS_LOG_COMPONENT_DEFINE ("TcpDatSentCbTest");
 
 /**
- * \ingroup internet-test
- * \ingroup tests
- *
  * \brief Socket that the 50% of the times saves the entire packet in the buffer,
  * while in the other 50% saves only half the packet.
  */
 class TcpSocketHalfAck : public TcpSocketMsgBase
 {
 public:
-  /**
-   * \brief Get the type ID.
-   * \return the object TypeId
-   */
   static TypeId GetTypeId (void);
 
   TcpSocketHalfAck () : TcpSocketMsgBase ()
   {
   }
 
+  TcpSocketHalfAck (const TcpSocketHalfAck &other) : TcpSocketMsgBase (other)
+  {
+  }
 protected:
   virtual Ptr<TcpSocketBase> Fork ();
   virtual void ReceivedData (Ptr<Packet> packet, const TcpHeader& tcpHeader);
@@ -87,9 +83,6 @@ TcpSocketHalfAck::ReceivedData (Ptr<Packet> packet, const TcpHeader &tcpHeader)
 
 
 /**
- * \ingroup internet-test
- * \ingroup tests
- *
  * \brief Data Sent callback test
  *
  * The rationale of this test is to check if the dataSent callback advertises
@@ -101,13 +94,6 @@ TcpSocketHalfAck::ReceivedData (Ptr<Packet> packet, const TcpHeader &tcpHeader)
 class TcpDataSentCbTestCase : public TcpGeneralTest
 {
 public:
-
-  /**
-   * Constructor.
-   * \param desc Test desctiption.
-   * \param size Packet size.
-   * \param packets Number of packets.
-   */
   TcpDataSentCbTestCase (const std::string &desc, uint32_t size, uint32_t packets) :
     TcpGeneralTest (desc),
     m_pktSize (size),
@@ -123,9 +109,9 @@ protected:
   virtual void FinalChecks ();
 
 private:
-  uint32_t m_pktSize;      //!< Packet size.
-  uint32_t m_pktCount;     //!< Number of packets sent.
-  uint32_t m_notifiedData; //!< Amount of data notified.
+  uint32_t m_pktSize;
+  uint32_t m_pktCount;
+  uint32_t m_notifiedData;
 };
 
 void
@@ -159,13 +145,7 @@ TcpDataSentCbTestCase::CreateReceiverSocket (Ptr<Node> node)
   return CreateSocket (node, TcpSocketHalfAck::GetTypeId (), m_congControlTypeId);
 }
 
-/**
- * \ingroup internet-test
- * \ingroup tests
- *
- * \brief TestSuite: Data Sent callback
- */
-class TcpDataSentCbTestSuite : public TestSuite
+static class TcpDataSentCbTestSuite : public TestSuite
 {
 public:
   TcpDataSentCbTestSuite ()
@@ -178,6 +158,6 @@ public:
     AddTestCase (new TcpDataSentCbTestCase ("Check the data sent callback", 1243, 59), TestCase::QUICK);
   }
 
-};
+} g_tcpDataSentCbTestSuite;
 
-static TcpDataSentCbTestSuite g_tcpDataSentCbTestSuite; //!< Static variable for test initialization
+} // namespace ns3

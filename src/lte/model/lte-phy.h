@@ -209,9 +209,7 @@ public:
   */
   virtual void ReportRsReceivedPower (const SpectrumValue& power) = 0;
 
-  void SetComponentCarrierId (uint8_t index);
 
-  uint8_t GetComponentCarrierId ();
 
 protected:
   /// Pointer to the NetDevice where this PHY layer is attached.
@@ -264,12 +262,12 @@ protected:
    * The downlink carrier frequency.
    * Specified by the upper layer through CPHY SAP.
    */
-  uint32_t m_dlEarfcn;
+  uint16_t m_dlEarfcn;
   /**
    * The uplink carrier frequency.
    * Specified by the upper layer through CPHY SAP.
    */
-  uint32_t m_ulEarfcn;
+  uint16_t m_ulEarfcn;
 
   /// A queue of packet bursts to be sent.
   std::vector< Ptr<PacketBurst> > m_packetBurstQueue;
@@ -292,9 +290,6 @@ protected:
    * eNodeB which this PHY layer is synchronized with.
    */
   uint16_t m_cellId;
-
-  /// component carrier Id used to address sap
-  uint8_t m_componentCarrierId;
 
 }; // end of `class LtePhy`
 

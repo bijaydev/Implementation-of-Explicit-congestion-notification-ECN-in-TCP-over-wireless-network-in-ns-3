@@ -17,11 +17,6 @@
  *
  * Author: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  */
-
-// This program can be used to benchmark packet serialization/deserialization
-// operations using Headers and Tags, for various numbers of packets 'n'
-// Sample usage:  ./waf --run 'bench-packets --n=10000'
-
 #include "ns3/command-line.h"
 #include "ns3/system-wall-clock-ms.h"
 #include "ns3/packet.h"
@@ -35,19 +30,11 @@
 
 using namespace ns3;
 
-/// BenchHeader class used for benchmarking packet serialization/deserialization
 template <int N>
 class BenchHeader : public Header
 {
 public:
   BenchHeader ();
-  /**
-   * Returns true if the header has been deserialized and the 
-   * deserialization was correct.  If Deserialize() has not yet been
-   * called on the header, will return false.
-   *
-   * \returns true if success, false if failed or if deserialization not tried
-   */
   bool IsOk (void) const;
 
   /**
@@ -61,12 +48,8 @@ public:
   virtual void Serialize (Buffer::Iterator start) const;
   virtual uint32_t Deserialize (Buffer::Iterator start);
 private:
-  /**
-   * Get type name function
-   * \returns the type name string
-   */
   static std::string GetTypeName (void);
-  bool m_ok; ///< variable to track whether deserialization succeeded
+  bool m_ok;
 };
 
 template <int N>
@@ -142,15 +125,10 @@ BenchHeader<N>::Deserialize (Buffer::Iterator start)
   return N;
 }
 
-/// BenchTag class used for benchmarking packet serialization/deserialization
 template <int N>
 class BenchTag : public Tag
 {
 public:
-  /**
-   * Get the bench tag name.
-   * \return the name.
-   */
   static std::string GetName (void) {
     std::ostringstream oss;
     oss << "anon::BenchTag<" << N << ">";
@@ -225,9 +203,6 @@ benchA (uint32_t n)
   BenchHeader<25> ipv4;
   BenchHeader<8> udp;
 
-  // The original version of this program did not use BenchHeader::IsOK ()
-  // Below are two asserts that suggest how it can be used.
-  NS_ASSERT_MSG (ipv4.IsOk () == false, "IsOk() should be false before deserialization");
   for (uint32_t i = 0; i < n; i++) {
     Ptr<Packet> p = Create<Packet> (2000);
     p->AddHeader (udp);
@@ -236,7 +211,6 @@ benchA (uint32_t n)
     o->RemoveHeader (ipv4);
     o->RemoveHeader (udp);
   }
-  NS_ASSERT_MSG (ipv4.IsOk () == true, "IsOk() should be true after deserialization");
 }
 
 static void 

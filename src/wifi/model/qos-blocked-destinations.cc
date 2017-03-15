@@ -34,19 +34,36 @@ QosBlockedDestinations::~QosBlockedDestinations ()
 bool
 QosBlockedDestinations::IsBlocked (Mac48Address dest, uint8_t tid) const
 {
-  return m_blockedQosPackets.find ({dest, tid}) != m_blockedQosPackets.end ();
+  for (BlockedPacketsCI i = m_blockedQosPackets.begin (); i != m_blockedQosPackets.end (); i++)
+    {
+      if (i->first == dest && i->second == tid)
+        {
+          return true;
+        }
+    }
+  return false;
 }
 
 void
 QosBlockedDestinations::Block (Mac48Address dest, uint8_t tid)
 {
-  m_blockedQosPackets.insert ({dest, tid});
+  if (!IsBlocked (dest, tid))
+    {
+      m_blockedQosPackets.push_back (std::make_pair (dest, tid));
+    }
 }
 
 void
 QosBlockedDestinations::Unblock (Mac48Address dest, uint8_t tid)
 {
-  m_blockedQosPackets.erase ({dest, tid});
+  for (BlockedPacketsI i = m_blockedQosPackets.begin (); i != m_blockedQosPackets.end (); i++)
+    {
+      if (i->first == dest && i->second == tid)
+        {
+          m_blockedQosPackets.erase (i);
+          break;
+        }
+    }
 }
 
 } //namespace ns3

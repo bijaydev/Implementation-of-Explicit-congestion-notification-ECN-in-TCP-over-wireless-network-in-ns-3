@@ -34,7 +34,8 @@
 namespace ns3 {
 
 /**
- * \ingroup congestionOps
+ * \ingroup socket
+ * \ingroup tcp
  *
  * \brief An implementation of the H-TCP variant of TCP.
  *

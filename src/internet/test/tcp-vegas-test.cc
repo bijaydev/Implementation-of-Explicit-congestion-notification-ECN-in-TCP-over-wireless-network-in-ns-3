@@ -30,27 +30,16 @@
 #include "ns3/tcp-socket-base.h"
 #include "ns3/tcp-vegas.h"
 
-using namespace ns3;
+namespace ns3 {
 
 NS_LOG_COMPONENT_DEFINE ("TcpVegasTestSuite");
 
 /**
- * \brief TcpVegas congestion control algorithm test
+ * \brief Testing TcpVegas congestion control algorithm
  */
 class TcpVegasTest : public TestCase
 {
 public:
-  /**
-   * \brief Constructor.
-   * \param cWnd Congestion window.
-   * \param segmentSize Segment size.
-   * \param ssThresh Slow Start Threshold.
-   * \param rtt The RTT.
-   * \param segmentsAcked Number of segments ACKed.
-   * \param nextTxSeq Next Tx sequence number.
-   * \param lastAckedSeq Last ACKed sequence number.
-   * \param name Test description.
-   */
   TcpVegasTest (uint32_t cWnd,
                 uint32_t segmentSize,
                 uint32_t ssThresh,
@@ -62,26 +51,17 @@ public:
 
 private:
   virtual void DoRun (void);
-  /**
-   * \brief Increases the TCP window.
-   * \param cong The congestion control.
-   */
   void IncreaseWindow (Ptr<TcpVegas> cong);
-  /**
-   * brief Get and check the SSH threshold.
-   * \param cong The congestion control.
-   */
   void GetSsThresh (Ptr<TcpVegas> cong);
 
-  uint32_t m_cWnd;        //!< Congestion window.
-  uint32_t m_segmentSize; //!< Segment size.
-  uint32_t m_ssThresh;    //!< Slow Start Threshold.
-  Time m_rtt;             //!< RTT.
-  uint32_t m_segmentsAcked; //!< Number of segments ACKed.
-  SequenceNumber32 m_nextTxSeq; //!< Next Tx sequence number.
-  SequenceNumber32 m_lastAckedSeq;  //!< Last ACKed sequence number.
-
-  Ptr<TcpSocketState> m_state;  //!< TCP socket state.
+  uint32_t m_cWnd;
+  uint32_t m_segmentSize;
+  uint32_t m_ssThresh;
+  Time m_rtt;
+  uint32_t m_segmentsAcked;
+  SequenceNumber32 m_nextTxSeq;
+  SequenceNumber32 m_lastAckedSeq;
+  Ptr<TcpSocketState> m_state;
 };
 
 TcpVegasTest::TcpVegasTest (uint32_t cWnd,
@@ -197,14 +177,8 @@ TcpVegasTest::GetSsThresh (Ptr<TcpVegas> cong)
   m_ssThresh = std::max (std::min (m_ssThresh, m_cWnd - m_segmentSize), 2 * m_segmentSize);
 }
 
-
-/**
- * \ingroup internet-test
- * \ingroup tests
- *
- * \brief TCP Vegas TestSuite
- */
-class TcpVegasTestSuite : public TestSuite
+// -------------------------------------------------------------------
+static class TcpVegasTestSuite : public TestSuite
 {
 public:
   TcpVegasTestSuite () : TestSuite ("tcp-vegas-test", UNIT)
@@ -225,6 +199,6 @@ public:
                                    "Vegas test on cWnd and ssThresh when alpha <= diff <= beta"),
                  TestCase::QUICK);
   }
-};
+} g_tcpVegasTest;
 
-static TcpVegasTestSuite g_tcpVegasTest; //!< Static variable for test initialization
+} // namespace ns3

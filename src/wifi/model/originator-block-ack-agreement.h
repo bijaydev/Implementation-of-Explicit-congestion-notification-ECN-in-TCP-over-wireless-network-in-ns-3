@@ -37,12 +37,6 @@ class OriginatorBlockAckAgreement : public BlockAckAgreement
 
 public:
   OriginatorBlockAckAgreement ();
-  /**
-   * Constructor
-   *
-   * \param recipient MAC address
-   * \param tid Traffic ID
-   */
   OriginatorBlockAckAgreement (Mac48Address recipient, uint8_t tid);
   ~OriginatorBlockAckAgreement ();
   /*                                      receive ADDBAResponse
@@ -94,7 +88,6 @@ public:
   *    In both cases for station addressed by BlockAckAgreement::m_peer and for
   *    TID BlockAckAgreement::m_tid block ack mechanism won't be used.
   */
-  /// State enumeration
   enum State
   {
     PENDING,
@@ -102,12 +95,7 @@ public:
     INACTIVE,
     UNSUCCESSFUL
   };
-  /**
-   * Set the current state.
-   *
-   * \param state to set
-   */
-  void SetState (State state);
+  void SetState (enum State state);
   /**
    * Check if the current state of this agreement is PENDING.
    *
@@ -150,14 +138,13 @@ public:
    * false otherwise
    */
   bool IsBlockAckRequestNeeded (void) const;
-  /// Complete exchange function
   void CompleteExchange (void);
 
 
 private:
-  State m_state; ///< state
-  uint16_t m_sentMpdus; ///< sent MPDUs
-  bool m_needBlockAckReq; ///< flag whether it needs a Block ACK request
+  enum State m_state;
+  uint16_t m_sentMpdus;
+  bool m_needBlockAckReq;
 };
 
 } //namespace ns3

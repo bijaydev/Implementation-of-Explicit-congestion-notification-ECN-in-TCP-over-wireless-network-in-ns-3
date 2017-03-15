@@ -22,6 +22,7 @@
 #define SPECTRUM_WIFI_HELPER_H
 
 #include "wifi-helper.h"
+#include "ns3/trace-helper.h"
 
 namespace ns3 {
 
@@ -71,7 +72,7 @@ private:
    */
   virtual Ptr<WifiPhy> Create (Ptr<Node> node, Ptr<NetDevice> device) const;
 
-  Ptr<SpectrumChannel> m_channel; ///< the channel
+  Ptr<SpectrumChannel> m_channel;
 };
 
 } //namespace ns3

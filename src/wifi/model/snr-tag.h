@@ -25,7 +25,7 @@
 #ifndef SNR_TAG_H
 #define SNR_TAG_H
 
-#include "ns3/tag.h"
+#include "ns3/packet.h"
 
 namespace ns3 {
 
@@ -34,12 +34,8 @@ class Tag;
 class SnrTag : public Tag
 {
 public:
-  /**
-   * \brief Get the type ID.
-   * \return the object TypeId
-   */
   static TypeId GetTypeId (void);
-  TypeId GetInstanceTypeId (void) const;
+  virtual TypeId GetInstanceTypeId (void) const;
 
   /**
    * Create a SnrTag with the default snr 0
@@ -52,10 +48,10 @@ public:
    */
   SnrTag (double snr);
 
-  uint32_t GetSerializedSize (void) const;
-  void Serialize (TagBuffer i) const;
-  void Deserialize (TagBuffer i);
-  void Print (std::ostream &os) const;
+  virtual uint32_t GetSerializedSize (void) const;
+  virtual void Serialize (TagBuffer i) const;
+  virtual void Deserialize (TagBuffer i);
+  virtual void Print (std::ostream &os) const;
 
   /**
    * Set the SNR to the given value.
@@ -76,5 +72,4 @@ private:
 };
 
 }
-
 #endif /* SNR_TAG_H */

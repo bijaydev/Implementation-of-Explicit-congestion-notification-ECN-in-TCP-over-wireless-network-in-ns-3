@@ -17,9 +17,6 @@
  *
  * Author: Giuseppe Piro  <g.piro@poliba.it>
  *         Nicola Baldo <nbaldo@cttc.es>
- * Modified by:
- *          Danilo Abrignani <danilo.abrignani@unibo.it> (Carrier Aggregation - GSoC 2015)
- *          Biljana Bojovic <biljana.bojovic@cttc.es> (Carrier Aggregation)
  */
 
 #ifndef LTE_UE_NET_DEVICE_H
@@ -32,9 +29,7 @@
 #include "ns3/nstime.h"
 #include "ns3/lte-phy.h"
 #include "ns3/eps-bearer.h"
-#include "ns3/component-carrier-ue.h"
-#include <vector>
-#include <map>
+
 
 namespace ns3 {
 
@@ -48,7 +43,6 @@ class LteUeMac;
 class LteUeRrc;
 class EpcUeNas;
 class EpcTft;
-class LteUeComponentCarrierManager;
 
 /**
  * \ingroup lte
@@ -76,8 +70,6 @@ public:
   Ptr<LteUePhy> GetPhy (void) const;
 
   Ptr<EpcUeNas> GetNas (void) const;
-  
-  Ptr<LteUeComponentCarrierManager> GetComponentCarrierManager (void) const;
 
   uint64_t GetImsi () const;
 
@@ -87,7 +79,7 @@ public:
    * Note that real-life handset typically supports more than one EARFCN, but
    * the sake of simplicity we assume only one EARFCN is supported.
    */
-  uint32_t GetDlEarfcn () const;
+  uint16_t GetDlEarfcn () const;
 
   /**
    * \param earfcn the downlink carrier frequency (EARFCN)
@@ -95,7 +87,7 @@ public:
    * Note that real-life handset typically supports more than one EARFCN, but
    * the sake of simplicity we assume only one EARFCN is supported.
    */
-  void SetDlEarfcn (uint32_t earfcn);
+  void SetDlEarfcn (uint16_t earfcn);
 
   /**
    * \brief Returns the CSG ID the UE is currently a member of.
@@ -128,15 +120,6 @@ public:
    */
   Ptr<LteEnbNetDevice> GetTargetEnb (void);
 
-  /**
-   * \brief Set the ComponentCarrier Map for the UE
-   * \param ccm the map of ComponentCarrierUe
-   */
-  void SetCcMap (std::map< uint8_t, Ptr<ComponentCarrierUe> > ccm);
-
-  std::map< uint8_t, Ptr<ComponentCarrierUe> >  GetCcMap (void);
-
-
 
 protected:
   // inherited from Object
@@ -163,15 +146,12 @@ private:
   Ptr<LteUePhy> m_phy;
   Ptr<LteUeRrc> m_rrc;
   Ptr<EpcUeNas> m_nas;
-  Ptr<LteUeComponentCarrierManager> m_componentCarrierManager;
 
   uint64_t m_imsi;
 
-  uint32_t m_dlEarfcn; /**< downlink carrier frequency */
+  uint16_t m_dlEarfcn; /**< downlink carrier frequency */
 
   uint32_t m_csgId;
-
-  std::map < uint8_t, Ptr<ComponentCarrierUe> > m_ccMap;
 
 }; // end of class LteUeNetDevice
 

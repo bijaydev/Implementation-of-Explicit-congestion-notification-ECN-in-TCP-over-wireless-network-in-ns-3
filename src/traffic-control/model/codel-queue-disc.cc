@@ -309,19 +309,13 @@ CoDelQueueDisc::DoEnqueue (Ptr<QueueDiscItem> item)
 }
 
 bool
-CoDelQueueDisc::OkToDrop (Ptr<QueueDiscItem> item, uint32_t now)
+CoDelQueueDisc::OkToDrop (Ptr<Packet> p, uint32_t now)
 {
   NS_LOG_FUNCTION (this);
   CoDelTimestampTag tag;
   bool okToDrop;
 
-  if (!item)
-    {
-      m_firstAboveTime = 0;
-      return false;
-    }
-
-  bool found = item->GetPacket ()->RemovePacketTag (tag);
+  bool found = p->RemovePacketTag (tag);
   NS_ASSERT_MSG (found, "found a packet without an input timestamp tag");
   NS_UNUSED (found);    //silence compiler warning
   Time delta = Simulator::Now () - tag.GetTxTime ();
@@ -346,7 +340,8 @@ CoDelQueueDisc::OkToDrop (Ptr<QueueDiscItem> item, uint32_t now)
       NS_LOG_LOGIC ("Sojourn time has just gone above target from below, need to stay above for at least q->interval before packet can be dropped. ");
       m_firstAboveTime = now + Time2CoDel (m_interval);
     }
-  else if (CoDelTimeAfter (now, m_firstAboveTime))
+  else
+  if (CoDelTimeAfter (now, m_firstAboveTime))
     {
       NS_LOG_LOGIC ("Sojourn time has been above target for at least q->interval; it's OK to (possibly) drop packet.");
       okToDrop = true;
@@ -360,22 +355,24 @@ CoDelQueueDisc::DoDequeue (void)
 {
   NS_LOG_FUNCTION (this);
 
-  Ptr<QueueDiscItem> item = StaticCast<QueueDiscItem> (GetInternalQueue (0)->Dequeue ());
-  if (!item)
+  if (GetInternalQueue (0)->IsEmpty ())
     {
       // Leave dropping state when queue is empty
       m_dropping = false;
+      m_firstAboveTime = 0;
       NS_LOG_LOGIC ("Queue empty");
       return 0;
     }
   uint32_t now = CoDelGetTime ();
+  Ptr<QueueDiscItem> item = StaticCast<QueueDiscItem> (GetInternalQueue (0)->Dequeue ());
+  Ptr<Packet> p = item->GetPacket ();
 
   NS_LOG_LOGIC ("Popped " << item);
   NS_LOG_LOGIC ("Number packets remaining " << GetInternalQueue (0)->GetNPackets ());
   NS_LOG_LOGIC ("Number bytes remaining " << GetInternalQueue (0)->GetNBytes ());
 
-  // Determine if item should be dropped
-  bool okToDrop = OkToDrop (item, now);
+  // Determine if p should be dropped
+  bool okToDrop = OkToDrop (p, now);
 
   if (m_dropping)
     { // In the dropping state (sojourn time has gone above target and hasn't come down yet)
@@ -387,7 +384,8 @@ CoDelQueueDisc::DoDequeue (void)
           NS_LOG_LOGIC ("Sojourn time goes below target, it's OK to leave dropping state.");
           m_dropping = false;
         }
-      else if (CoDelTimeAfterEq (now, m_dropNext))
+      else
+      if (CoDelTimeAfterEq (now, m_dropNext))
         {
           m_state2++;
           while (m_dropping && CoDelTimeAfterEq (now, m_dropNext))
@@ -398,22 +396,27 @@ CoDelQueueDisc::DoDequeue (void)
               // A large amount of packets in queue might result in drop
               // rates so high that the next drop should happen now,
               // hence the while loop.
-              NS_LOG_LOGIC ("Sojourn time is still above target and it's time for next drop; dropping " << item);
+              NS_LOG_LOGIC ("Sojourn time is still above target and it's time for next drop; dropping " << p);
               Drop (item);
 
               ++m_dropCount;
               ++m_count;
               NewtonStep ();
-              item = StaticCast<QueueDiscItem> (GetInternalQueue (0)->Dequeue ());
-
-              if (item)
+              if (GetInternalQueue (0)->IsEmpty ())
                 {
-                  NS_LOG_LOGIC ("Popped " << item);
-                  NS_LOG_LOGIC ("Number packets remaining " << GetInternalQueue (0)->GetNPackets ());
-                  NS_LOG_LOGIC ("Number bytes remaining " << GetInternalQueue (0)->GetNBytes ());
+                  m_dropping = false;
+                  NS_LOG_LOGIC ("Queue empty");
+                  ++m_states;
+                  return 0;
                 }
+              item = StaticCast<QueueDiscItem> (GetInternalQueue (0)->Dequeue ());
+              p = item ->GetPacket ();
 
-              if (!OkToDrop (item, now))
+              NS_LOG_LOGIC ("Popped " << item);
+              NS_LOG_LOGIC ("Number packets remaining " << GetInternalQueue (0)->GetNPackets ());
+              NS_LOG_LOGIC ("Number bytes remaining " << GetInternalQueue (0)->GetNBytes ());
+
+              if (!OkToDrop (p, now))
                 {
                   /* leave dropping state */
                   NS_LOG_LOGIC ("Leaving dropping state");
@@ -437,21 +440,29 @@ CoDelQueueDisc::DoDequeue (void)
       if (okToDrop)
         {
           // Drop the first packet and enter dropping state unless the queue is empty
-          NS_LOG_LOGIC ("Sojourn time goes above target, dropping the first packet " << item << " and entering the dropping state");
+          NS_LOG_LOGIC ("Sojourn time goes above target, dropping the first packet " << p << " and entering the dropping state");
           ++m_dropCount;
           Drop (item);
 
-          item = StaticCast<QueueDiscItem> (GetInternalQueue (0)->Dequeue ());
-
-          if (item)
+          if (GetInternalQueue (0)->IsEmpty ())
             {
+              m_dropping = false;
+              okToDrop = false;
+              NS_LOG_LOGIC ("Queue empty");
+              ++m_states;
+            }
+          else
+            {
+              item = StaticCast<QueueDiscItem> (GetInternalQueue (0)->Dequeue ());
+              p = item->GetPacket ();
+
               NS_LOG_LOGIC ("Popped " << item);
               NS_LOG_LOGIC ("Number packets remaining " << GetInternalQueue (0)->GetNPackets ());
               NS_LOG_LOGIC ("Number bytes remaining " << GetInternalQueue (0)->GetNBytes ());
-            }
 
-          OkToDrop (item, now);
-          m_dropping = true;
+              okToDrop = OkToDrop (p, now);
+              m_dropping = true;
+            }
           ++m_state3;
           /*
            * if min went above target close to when we last went below it

@@ -19,6 +19,8 @@
  */
 
 #include "wifi-information-element-vector.h"
+#include "ns3/packet.h"
+#include <algorithm>
 
 namespace ns3 {
 
@@ -115,9 +117,9 @@ WifiInformationElementVector::Print (std::ostream & os) const
 {
   for (IE_VECTOR::const_iterator i = m_elements.begin (); i != m_elements.end (); i++)
     {
-      os << "(";
+       os << "(";
       (*i)->Print (os);
-      os << ")";
+       os << ")";
     }
 }
 
@@ -166,16 +168,8 @@ WifiInformationElementVector::FindFirst (WifiInformationElementId id) const
 
 namespace {
 
-/// PIEComparator structure
 struct PIEComparator
 {
-  /**
-   * comparison operator
-   *
-   * \param a left side
-   * \param b right side
-   * \returns true if less than
-   */
   bool
   operator () (Ptr<WifiInformationElement> a, Ptr<WifiInformationElement> b) const
   {

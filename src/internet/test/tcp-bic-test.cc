@@ -23,28 +23,16 @@
 #include "ns3/tcp-socket-base.h"
 #include "ns3/tcp-bic.h"
 
-using namespace ns3;
+namespace ns3 {
 
 NS_LOG_COMPONENT_DEFINE ("TcpBicTestSuite");
 
 /**
- * \ingroup internet-test
- * \ingroup tests
- *
  * \brief Testing the congestion avoidance increment on TcpBic
  */
 class TcpBicIncrementTest : public TestCase
 {
 public:
-  /**
-   * \brief Constructor.
-   * \param cWnd Congestion window.
-   * \param segmentSize Segment size.
-   * \param ssThresh Slow Start Threshold.
-   * \param segmentsAcked Number of segments acked.
-   * \param lastMaxCwnd Last max Cwnd.
-   * \param name Test description.
-   */
   TcpBicIncrementTest (uint32_t cWnd,
                        uint32_t segmentSize,
                        uint32_t ssThresh,
@@ -54,25 +42,15 @@ public:
 
 private:
   virtual void DoRun (void);
-
-  /**
-   * \brief Update the TCP socket state.
-   * \param tcb The TCP socket state.
-   * \returns The ack counter.
-   */
   uint32_t Update (Ptr<TcpSocketState> tcb);
-
-  /**
-   * \brief Execute the test.
-   */
   void ExecuteTest (void);
 
-  uint32_t m_cWnd;        //!< Congestion window.
-  uint32_t m_segmentSize; //!< Segment size.
-  uint32_t m_ssThresh;    //!< Slow Start Threshold.
-  uint32_t m_segmentsAcked; //!< Number of segments acked.
-  uint32_t m_lastMaxCwnd;   //!< Last max Cwnd.
-  Ptr<TcpSocketState> m_state;  //!< TCP socket state.
+  uint32_t m_cWnd;
+  uint32_t m_segmentSize;
+  uint32_t m_ssThresh;
+  uint32_t m_segmentsAcked;
+  uint32_t m_lastMaxCwnd;
+  Ptr<TcpSocketState> m_state;
 };
 
 TcpBicIncrementTest::TcpBicIncrementTest (uint32_t cWnd,
@@ -189,22 +167,11 @@ TcpBicIncrementTest::Update (Ptr<TcpSocketState> tcb)
 }
 
 /**
- * \ingroup internet-test
- * \ingroup tests
- *
- * \brief Testing the congestion avoidance decrement on TcpBic
+ * \brief Testing the congestion avoidance increment on TcpBic
  */
 class TcpBicDecrementTest : public TestCase
 {
 public:
-  /**
-   * \brief Constructor.
-   * \param cWnd Congestion window.
-   * \param segmentSize Segment size.
-   * \param fastConvergence Fast convergence.
-   * \param lastMaxCwnd Last max Cwnd.
-   * \param name Test description.
-   */
   TcpBicDecrementTest (uint32_t cWnd,
                        uint32_t segmentSize,
                        BooleanValue fastConvergence,
@@ -213,17 +180,13 @@ public:
 
 private:
   virtual void DoRun (void);
-
-  /**
-   * \brief Execute the test.
-   */
   void ExecuteTest (void);
 
-  uint32_t m_cWnd;        //!< Congestion window.
-  uint32_t m_segmentSize; //!< Segment size.
-  BooleanValue m_fastConvergence;   //!< Fast convergence.
-  uint32_t m_lastMaxCwnd;   //!< Last max Cwnd.
-  Ptr<TcpSocketState> m_state;  //!< TCP socket state.
+  uint32_t m_cWnd;
+  uint32_t m_segmentSize;
+  BooleanValue m_fastConvergence;
+  uint32_t m_lastMaxCwnd;
+  Ptr<TcpSocketState> m_state;
 };
 
 TcpBicDecrementTest::TcpBicDecrementTest (uint32_t cWnd,
@@ -299,13 +262,9 @@ TcpBicDecrementTest::ExecuteTest ()
 }
 
 
-/**
- * \ingroup internet-test
- * \ingroup tests
- *
- * \brief TCP Bic TestSuite
- */
-class TcpBicTestSuite : public TestSuite
+// -------------------------------------------------------------------
+
+static class TcpBicTestSuite : public TestSuite
 {
 public:
   TcpBicTestSuite () : TestSuite ("tcp-bic-test", UNIT)
@@ -345,6 +304,6 @@ public:
                                           "Bic decrement test: not in fast convergence & cwnd greater than lowWindow"),
                  TestCase::QUICK);
   }
-};
+} g_tcpBicTest;
 
-static TcpBicTestSuite g_tcpBicTest; //!< Static variable for test initialization
+} // namespace ns3

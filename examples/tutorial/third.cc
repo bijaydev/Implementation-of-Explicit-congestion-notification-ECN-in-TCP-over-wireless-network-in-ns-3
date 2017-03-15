@@ -25,6 +25,10 @@
 
 // Default Network Topology
 //
+// Number of wifi or csma nodes can be increased up to 250
+//                          |
+//                 Rank 0   |   Rank 1
+// -------------------------|----------------------------
 //   Wifi 10.1.3.0
 //                 AP
 //  *    *    *    *
@@ -54,12 +58,12 @@ main (int argc, char *argv[])
 
   cmd.Parse (argc,argv);
 
-  // The underlying restriction of 18 is due to the grid position
-  // allocator's configuration; the grid layout will exceed the
-  // bounding box if more than 18 nodes are provided.
-  if (nWifi > 18)
+  // Check for valid number of csma or wifi nodes
+  // 250 should be enough, otherwise IP addresses 
+  // soon become an issue
+  if (nWifi > 250 || nCsma > 250)
     {
-      std::cout << "nWifi should be 18 or less; otherwise grid layout exceeds the bounding box" << std::endl;
+      std::cout << "Too many wifi or csma nodes, no more than 250 each." << std::endl;
       return 1;
     }
 

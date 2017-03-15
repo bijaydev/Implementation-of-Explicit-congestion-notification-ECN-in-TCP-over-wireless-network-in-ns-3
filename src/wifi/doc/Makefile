@@ -18,10 +18,7 @@ IMAGES_EPS = \
 	$(FIGURES)/snir.eps \
 	$(FIGURES)/WifiArchitecture.eps \
         $(FIGURES)/clear-channel.eps \
-        $(FIGURES)/nist-frame-success-rate.eps \
-        $(FIGURES)/nist-frame-success-rate-n.eps \
-        $(FIGURES)/nist-frame-success-rate-ac.eps \
-        $(FIGURES)/nist-frame-success-rate-ax.eps
+        $(FIGURES)/nist-frame-success-rate.eps
 
 # rescale pdf figures as necessary
 $(FIGURES)/snir.pdf_width = 3in

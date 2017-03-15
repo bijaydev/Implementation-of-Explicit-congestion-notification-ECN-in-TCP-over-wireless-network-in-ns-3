@@ -34,23 +34,6 @@ namespace ns3 {
 
 NS_LOG_COMPONENT_DEFINE ("PacketTagList");
 
-PacketTagList::TagData *
-PacketTagList::CreateTagData (size_t dataSize)
-{
-  NS_ASSERT_MSG (dataSize
-                 < std::numeric_limits<decltype(TagData::size)>::max (),
-                 "Requested TagData size " << dataSize
-                 << " exceeds maximum "
-                 << std::numeric_limits<decltype(TagData::size)>::max () );
-
-  void * p = std::malloc (sizeof (TagData) + dataSize - 1);
-  // The matching frees are in RemoveAll and RemoveWriter
-
-  TagData * tag = new (p) TagData;
-  tag->size = dataSize;
-  return tag;
-}
-
 bool
 PacketTagList::COWTraverse (Tag & tag, PacketTagList::COWWriter Writer)
 {
@@ -150,11 +133,10 @@ PacketTagList::COWTraverse (Tag & tag, PacketTagList::COWWriter Writer)
       NS_ASSERT (cur != 0);
       NS_ASSERT (cur->count > 1);
       cur->count--;                       // unmerge cur
-      struct TagData * copy = CreateTagData (cur->size);
+      struct TagData * copy = new struct TagData ();
       copy->tid = cur->tid;
       copy->count = 1;
-      copy->size = cur->size;
-      memcpy (copy->data, cur->data, copy->size);
+      memcpy (copy->data, cur->data, TagData::MAX_SIZE);
       copy->next = cur->next;             // merge into tail
       copy->next->count++;                // mark new merge
       *prevNext = copy;                   // point prior list at copy
@@ -188,14 +170,14 @@ PacketTagList::RemoveWriter (Tag & tag, bool preMerge,
 
   // found tid
   bool found = true;
-  tag.Deserialize (TagBuffer (cur->data, cur->data + cur->size));
+  tag.Deserialize (TagBuffer (cur->data,
+                              cur->data + TagData::MAX_SIZE));
   *prevNext = cur->next;            // link around cur
 
   if (preMerge)
     {
       // found tid before first merge, so delete cur
-      cur->~TagData ();
-      std::free (cur);
+      delete cur;
     }
   else
     {
@@ -235,17 +217,19 @@ PacketTagList::ReplaceWriter (Tag & tag, bool preMerge,
   if (preMerge)
     {
       // found tid before first merge, so just rewrite
-      tag.Serialize (TagBuffer (cur->data, cur->data + cur->size));
+      tag.Serialize (TagBuffer (cur->data,
+                                cur->data + tag.GetSerializedSize ()));
     }
   else
     {
       // cur is always a merge at this point
       // need to copy, replace, and link past cur
       cur->count--;                     // unmerge cur
-      struct TagData * copy = CreateTagData (tag.GetSerializedSize ());
+      struct TagData * copy = new struct TagData ();
       copy->tid = tag.GetInstanceTypeId ();
       copy->count = 1;
-      tag.Serialize (TagBuffer (copy->data, copy->data + copy->size));
+      tag.Serialize (TagBuffer (copy->data,
+                                copy->data + tag.GetSerializedSize ()));
       copy->next = cur->next;           // merge into tail
       if (copy->next != 0)
         {
@@ -263,15 +247,15 @@ PacketTagList::Add (const Tag &tag) const
   // ensure this id was not yet added
   for (struct TagData *cur = m_next; cur != 0; cur = cur->next) 
     {
-      NS_ASSERT_MSG (cur->tid != tag.GetInstanceTypeId (),
-                     "Error: cannot add the same kind of tag twice.");
+      NS_ASSERT_MSG (cur->tid != tag.GetInstanceTypeId (), "Error: cannot add the same kind of tag twice.");
     }
-  struct TagData * head = CreateTagData (tag.GetSerializedSize ());
+  struct TagData * head = new struct TagData ();
   head->count = 1;
   head->next = 0;
   head->tid = tag.GetInstanceTypeId ();
   head->next = m_next;
-  tag.Serialize (TagBuffer (head->data, head->data + head->size));
+  NS_ASSERT (tag.GetSerializedSize () <= TagData::MAX_SIZE);
+  tag.Serialize (TagBuffer (head->data, head->data + tag.GetSerializedSize ()));
 
   const_cast<PacketTagList *> (this)->m_next = head;
 }
@@ -286,7 +270,7 @@ PacketTagList::Peek (Tag &tag) const
       if (cur->tid == tid) 
         {
           /* found tag */
-          tag.Deserialize (TagBuffer (cur->data, cur->data + cur->size));
+          tag.Deserialize (TagBuffer (cur->data, cur->data + TagData::MAX_SIZE));
           return true;
         }
     }

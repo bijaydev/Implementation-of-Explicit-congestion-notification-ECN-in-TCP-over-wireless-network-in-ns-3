@@ -17,12 +17,13 @@
  *
  * Author: Nicola Baldo <nbaldo@cttc.es>
  */
-
 #ifndef WIFI_PHY_TAG_H
 #define WIFI_PHY_TAG_H
 
 #include <ns3/tag.h>
-#include "wifi-phy.h"
+#include <ns3/wifi-tx-vector.h>
+#include <ns3/wifi-preamble.h>
+#include <ns3/wifi-phy.h>
 
 namespace ns3 {
 
@@ -35,12 +36,8 @@ namespace ns3 {
 class WifiPhyTag : public Tag
 {
 public:
-  /**
-   * \brief Get the type ID.
-   * \return the object TypeId
-   */
   static TypeId GetTypeId (void);
-  TypeId GetInstanceTypeId (void) const;
+  virtual TypeId GetInstanceTypeId (void) const;
 
   /**
    * Constructor
@@ -49,30 +46,36 @@ public:
   /**
    * Constructor
    * \param txVector the WifiTxVector
-   * \param mpdutype the mpduType
+   * \param preamble the WifiPreamble
+   * \param mpduType the mpduType
    */
-  WifiPhyTag (WifiTxVector txVector, MpduType mpdutype);
+  WifiPhyTag (WifiTxVector txVector, WifiPreamble preamble, enum mpduType mpdutype);
   /**
    * Getter for WifiTxVector parameter
    * \return the WifiTxVector
    */
   WifiTxVector GetWifiTxVector (void) const;
   /**
+   * Getter for WifiPreamble parameter
+   * \return preamble the WifiPreamble
+   */
+  WifiPreamble GetWifiPreamble (void) const;
+  /**
    * Getter for mpduType parameter
    * \return mpduType the mpduType
    */
-  MpduType GetMpduType (void) const;
+  enum mpduType GetMpduType (void) const;
 
   // From class Tag
-  uint32_t GetSerializedSize (void) const;
-  void Serialize (TagBuffer i) const;
-  void Deserialize (TagBuffer i);
-  void Print (std::ostream &os) const;
-
+  virtual uint32_t GetSerializedSize (void) const;
+  virtual void Serialize (TagBuffer i) const;
+  virtual void Deserialize (TagBuffer i);
+  virtual void Print (std::ostream &os) const;
 
 private:
-  WifiTxVector m_wifiTxVector; ///< wifi transmit vector
-  MpduType m_mpduType; ///< MPDU type
+  WifiTxVector m_wifiTxVector;
+  int32_t m_wifiPreamble;
+  enum mpduType m_mpduType;
 };
 
 } // namespace ns3

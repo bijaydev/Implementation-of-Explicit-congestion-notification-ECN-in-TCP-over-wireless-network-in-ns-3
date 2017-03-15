@@ -23,18 +23,19 @@
 #ifndef MGT_HEADERS_H
 #define MGT_HEADERS_H
 
+#include <stdint.h>
+
+#include "ns3/header.h"
 #include "status-code.h"
 #include "capability-information.h"
 #include "supported-rates.h"
 #include "ssid.h"
 #include "dsss-parameter-set.h"
 #include "ht-capabilities.h"
-#include "ht-operation.h"
+#include "ht-operations.h"
 #include "vht-capabilities.h"
-#include "vht-operation.h"
 #include "erp-information.h"
 #include "edca-parameter-set.h"
-#include "he-capabilities.h"
 
 namespace ns3 {
 
@@ -85,12 +86,6 @@ public:
    */
   void SetVhtCapabilities (VhtCapabilities vhtcapabilities);
   /**
-   * Set the HE capabilities.
-   *
-   * \param hecapabilities HE capabilities
-   */
-  void SetHeCapabilities (HeCapabilities hecapabilities);
-  /**
    * Return the Capability information.
    *
    * \return Capability information
@@ -108,12 +103,6 @@ public:
    * \return VHT capabilities
    */
   VhtCapabilities GetVhtCapabilities (void) const;
-  /**
-   * Return the HE capabilities.
-   *
-   * \return HE capabilities
-   */
-  HeCapabilities GetHeCapabilities (void) const;
   /**
    * Return the Service Set Identifier (SSID).
    *
@@ -138,11 +127,11 @@ public:
    * \return The TypeId.
    */
   static TypeId GetTypeId (void);
-  TypeId GetInstanceTypeId (void) const;
-  void Print (std::ostream &os) const;
-  uint32_t GetSerializedSize (void) const;
-  void Serialize (Buffer::Iterator start) const;
-  uint32_t Deserialize (Buffer::Iterator start);
+  virtual TypeId GetInstanceTypeId (void) const;
+  virtual void Print (std::ostream &os) const;
+  virtual uint32_t GetSerializedSize (void) const;
+  virtual void Serialize (Buffer::Iterator start) const;
+  virtual uint32_t Deserialize (Buffer::Iterator start);
 
 
 private:
@@ -151,8 +140,7 @@ private:
   CapabilityInformation m_capability; //!< Capability information
   HtCapabilities m_htCapability;      //!< HT capabilities
   VhtCapabilities m_vhtCapability;    //!< VHT capabilities
-  HeCapabilities m_heCapability;      //!< HE capabilities
-  uint16_t m_listenInterval;          //!< listen interval
+  uint16_t m_listenInterval;
 };
 
 
@@ -185,35 +173,23 @@ public:
    */
   CapabilityInformation GetCapabilities (void) const;
   /**
+   * Set the Capability information.
+   *
+   * \param capabilities Capability information
+   */
+  void SetCapabilities (CapabilityInformation capabilities);
+  /**
    * Return the HT capabilities.
    *
    * \return HT capabilities
    */
   HtCapabilities GetHtCapabilities (void) const;
   /**
-   * Return the HT operation.
+   * Return the HT operations.
    *
-   * \return HT operation
+   * \return HT operations
    */
-  HtOperation GetHtOperation (void) const;
-  /**
-   * Return the VHT capabilities.
-   *
-   * \return VHT capabilities
-   */
-  VhtCapabilities GetVhtCapabilities (void) const;
-  /**
-   * Return the VHT operation.
-   *
-   * \return VHT operation
-   */
-  VhtOperation GetVhtOperation (void) const;
-  /**
-   * Return the HE capabilities.
-   *
-   * \return HE capabilities
-   */
-  HeCapabilities GetHeCapabilities (void) const;
+  HtOperations GetHtOperations (void) const;
   /**
    * Return the ERP information.
    *
@@ -227,23 +203,17 @@ public:
    */
   EdcaParameterSet GetEdcaParameterSet (void) const;
   /**
-   * Set the Capability information.
-   *
-   * \param capabilities Capability information
-   */
-  void SetCapabilities (CapabilityInformation capabilities);
-  /**
-   * Set the VHT operation.
-   *
-   * \param vhtoperation VHT operation
-   */
-  void SetVhtOperation (VhtOperation vhtoperation);
-  /**
    * Set the VHT capabilities.
    *
    * \param vhtcapabilities VHT capabilities
    */
   void SetVhtCapabilities (VhtCapabilities vhtcapabilities);
+  /**
+   * Return the VHT capabilities.
+   *
+   * \return VHT capabilities
+   */
+  VhtCapabilities GetVhtCapabilities (void) const;
   /**
    * Set the HT capabilities.
    *
@@ -251,11 +221,11 @@ public:
    */
   void SetHtCapabilities (HtCapabilities htcapabilities);
   /**
-   * Set the HT operation.
+   * Set the HT operations.
    *
-   * \param htoperation HT operation
+   * \param htoperations HT operations
    */
-  void SetHtOperation (HtOperation htoperation);
+  void SetHtOperations (HtOperations htoperations);
   /**
    * Set the supported rates.
    *
@@ -280,37 +250,29 @@ public:
    * \param edcaParameterSet the EDCA Parameter Set
    */
   void SetEdcaParameterSet (EdcaParameterSet edcaParameterSet);
-  /**
-   * Set the HE capabilities.
-   *
-   * \param hecapabilities HE capabilities
-   */
-  void SetHeCapabilities (HeCapabilities hecapabilities);
 
   /**
    * Register this type.
    * \return The TypeId.
    */
   static TypeId GetTypeId (void);
-  TypeId GetInstanceTypeId (void) const;
-  void Print (std::ostream &os) const;
-  uint32_t GetSerializedSize (void) const;
-  void Serialize (Buffer::Iterator start) const;
-  uint32_t Deserialize (Buffer::Iterator start);
+  virtual TypeId GetInstanceTypeId (void) const;
+  virtual void Print (std::ostream &os) const;
+  virtual uint32_t GetSerializedSize (void) const;
+  virtual void Serialize (Buffer::Iterator start) const;
+  virtual uint32_t Deserialize (Buffer::Iterator start);
 
 
 private:
   SupportedRates m_rates; //!< List of supported rates
   CapabilityInformation m_capability; //!< Capability information
   StatusCode m_code; //!< Status code
-  uint16_t m_aid; //!< aid
+  uint16_t m_aid;
   HtCapabilities m_htCapability; //!< HT capabilities
-  HtOperation m_htOperation; //!< HT operation
+  HtOperations m_htOperations; //!< HT operations
   VhtCapabilities m_vhtCapability; //!< VHT capabilities
-  VhtOperation m_vhtOperation; //!< VHT operation
   ErpInformation m_erpInformation; //!< ERP information
   EdcaParameterSet m_edcaParameterSet; //!< EDCA Parameter Set
-  HeCapabilities m_heCapability; //!< HE capabilities
 };
 
 
@@ -336,24 +298,6 @@ public:
    */
   void SetSupportedRates (SupportedRates rates);
   /**
-   * Set the HT capabilities.
-   *
-   * \param htcapabilities HT capabilities
-   */
-  void SetHtCapabilities (HtCapabilities htcapabilities);
-  /**
-   * Set the VHT capabilities.
-   *
-   * \param vhtcapabilities VHT capabilities
-   */
-  void SetVhtCapabilities (VhtCapabilities vhtcapabilities);
-  /**
-   * Set the HE capabilities.
-   *
-   * \param hecapabilities HE capabilities
-   */
-  void SetHeCapabilities (HeCapabilities hecapabilities);
-  /**
    * Return the Service Set Identifier (SSID).
    *
    * \return SSID
@@ -366,34 +310,40 @@ public:
    */
   SupportedRates GetSupportedRates (void) const;
   /**
+   * Set the HT capabilities.
+   *
+   * \param htcapabilities HT capabilities
+   */
+  void SetHtCapabilities (HtCapabilities htcapabilities);
+  /**
    * Return the HT capabilities.
    *
    * \return HT capabilities
    */
   HtCapabilities GetHtCapabilities (void) const;
   /**
-   * Return the VHT capabilities.
+   * Set the VHT capabilities.
    *
-   * \return VHT capabilities
+   * \param vhtcapabilities VHT capabilities
    */
-  VhtCapabilities GetVhtCapabilities (void) const;
+  void SetVhtCapabilities (VhtCapabilities vhtcapabilities);
   /**
-   * Return the HE capabilities.
-   *
-   * \return HE capabilities
-   */
-  HeCapabilities GetHeCapabilities (void) const;
+  * Return the VHT capabilities.
+  *
+  * \return VHT capabilities
+  */
+  VhtCapabilities GetVhtCapabilities (void) const;
 
   /**
    * Register this type.
    * \return The TypeId.
    */
   static TypeId GetTypeId (void);
-  TypeId GetInstanceTypeId (void) const;
-  void Print (std::ostream &os) const;
-  uint32_t GetSerializedSize (void) const;
-  void Serialize (Buffer::Iterator start) const;
-  uint32_t Deserialize (Buffer::Iterator start);
+  virtual TypeId GetInstanceTypeId (void) const;
+  virtual void Print (std::ostream &os) const;
+  virtual uint32_t GetSerializedSize (void) const;
+  virtual void Serialize (Buffer::Iterator start) const;
+  virtual uint32_t Deserialize (Buffer::Iterator start);
 
 
 private:
@@ -401,7 +351,6 @@ private:
   SupportedRates m_rates;          //!< List of supported rates
   HtCapabilities m_htCapability;   //!< HT capabilities
   VhtCapabilities m_vhtCapability; //!< VHT capabilities
-  HeCapabilities m_heCapability; //!< HE capabilities
 };
 
 
@@ -452,29 +401,17 @@ public:
    */
   HtCapabilities GetHtCapabilities (void) const;
   /**
-   * Return the HT operation.
+   * Return the HT operations.
    *
-   * \return HT operation
+   * \return HT operations
    */
-  HtOperation GetHtOperation (void) const;
+  HtOperations GetHtOperations (void) const;
   /**
    * Return the VHT capabilities.
    *
    * \return VHT capabilities
    */
   VhtCapabilities GetVhtCapabilities (void) const;
-  /**
-   * Return the VHT operation.
-   *
-   * \return VHT operation
-   */
-  VhtOperation GetVhtOperation (void) const;
-  /**
-   * Return the HE capabilities.
-   *
-   * \return HE capabilities
-   */
-  HeCapabilities GetHeCapabilities (void) const;
   /**
    * Return the ERP information.
    *
@@ -500,29 +437,17 @@ public:
    */
   void SetHtCapabilities (HtCapabilities htcapabilities);
   /**
-   * Set the HT operation.
+   * Set the HT operations.
    *
-   * \param htoperation HT operation
+   * \param htoperations HT operations
    */
-  void SetHtOperation (HtOperation htoperation);
+  void SetHtOperations (HtOperations htoperations);
   /**
    * Set the VHT capabilities.
    *
    * \param vhtcapabilities VHT capabilities
    */
   void SetVhtCapabilities (VhtCapabilities vhtcapabilities);
-  /**
-   * Set the VHT operation.
-   *
-   * \param vhtoperation VHT operation
-   */
-  void SetVhtOperation (VhtOperation vhtoperation);
-  /**
-   * Set the HE capabilities.
-   *
-   * \param hecapabilities HE capabilities
-   */
-  void SetHeCapabilities (HeCapabilities hecapabilities);
   /**
    * Set the Service Set Identifier (SSID).
    *
@@ -571,11 +496,11 @@ public:
    * \return The TypeId.
    */
   static TypeId GetTypeId (void);
-  TypeId GetInstanceTypeId (void) const;
-  void Print (std::ostream &os) const;
-  uint32_t GetSerializedSize (void) const;
-  void Serialize (Buffer::Iterator start) const;
-  uint32_t Deserialize (Buffer::Iterator start);
+  virtual TypeId GetInstanceTypeId (void) const;
+  virtual void Print (std::ostream &os) const;
+  virtual uint32_t GetSerializedSize (void) const;
+  virtual void Serialize (Buffer::Iterator start) const;
+  virtual uint32_t Deserialize (Buffer::Iterator start);
 
 
 private:
@@ -586,10 +511,8 @@ private:
   CapabilityInformation m_capability;  //!< Capability information
   DsssParameterSet m_dsssParameterSet; //!< DSSS Parameter Set
   HtCapabilities m_htCapability;       //!< HT capabilities
-  HtOperation m_htOperation;           //!< HT operation
+  HtOperations m_htOperations;         //!< HT operations
   VhtCapabilities m_vhtCapability;     //!< VHT capabilities
-  VhtOperation m_vhtOperation;         //!< VHT operation
-  HeCapabilities m_heCapability;     //!< HE capabilities
   ErpInformation m_erpInformation;     //!< ERP information
   EdcaParameterSet m_edcaParameterSet; //!< EDCA Parameter Set
 };
@@ -633,7 +556,6 @@ public:
    * Category values - see 802.11-2012 Table 8-38
    */
 
-  ///CategoryValue enumeration
   enum CategoryValue //table 8-38 staring from IEEE 802.11, Part11, (Year 2012)
   {
     BLOCK_ACK = 3,
@@ -645,7 +567,6 @@ public:
     VENDOR_SPECIFIC_ACTION = 127,
   };
 
-  ///SelfProtectedActionValue enumeration
   enum SelfProtectedActionValue //Category: 15 (Self Protected)
   {
     PEER_LINK_OPEN = 1,         //Mesh Peering Open
@@ -655,14 +576,12 @@ public:
     GROUP_KEY_ACK = 5,          //Mesh Group Key Acknowledge
   };
 
-  ///MultihopActionValue enumeration
   enum MultihopActionValue
   {
     PROXY_UPDATE = 0,                   //not used so far
     PROXY_UPDATE_CONFIRMATION = 1,      //not used so far
   };
 
-  ///MeshActionValue enumeration
   enum MeshActionValue
   {
     LINK_METRIC_REPORT = 0,               //Action Value:0 in Category 13: Mesh
@@ -695,18 +614,18 @@ public:
    */
   typedef union
   {
-    MeshActionValue meshAction; ///< mesh action
-    MultihopActionValue multihopAction; ///< multi hop action
-    SelfProtectedActionValue selfProtectedAction; ///< self protected action
-    BlockAckActionValue blockAck; ///< block ack
-  } ActionValue; ///< the action value
+    enum MeshActionValue meshAction;
+    enum MultihopActionValue multihopAction;
+    enum SelfProtectedActionValue selfProtectedAction;
+    enum BlockAckActionValue blockAck;
+  } ActionValue;
   /**
    * Set action for this Action header.
    *
    * \param type category
    * \param action action
    */
-  void SetAction (CategoryValue type, ActionValue action);
+  void   SetAction (enum CategoryValue type,ActionValue action);
 
   /**
    * Return the category value.
@@ -726,25 +645,15 @@ public:
    * \return The TypeId.
    */
   static TypeId GetTypeId (void);
-  TypeId GetInstanceTypeId () const;
-  void Print (std::ostream &os) const;
-  uint32_t GetSerializedSize () const;
-  void Serialize (Buffer::Iterator start) const;
-  uint32_t Deserialize (Buffer::Iterator start);
+  virtual TypeId GetInstanceTypeId () const;
+  virtual void Print (std::ostream &os) const;
+  virtual uint32_t GetSerializedSize () const;
+  virtual void Serialize (Buffer::Iterator start) const;
+  virtual uint32_t Deserialize (Buffer::Iterator start);
 
 
 private:
-  /**
-   * Category value to string function
-   * \param value the category value
-   * \returns the categoty value string
-   */
   std::string CategoryValueToString (CategoryValue value) const;
-  /**
-   * Self protected action value to string function
-   * \param value the protected action value
-   * \returns the self protected action value string
-   */
   std::string SelfProtectedActionValueToString (SelfProtectedActionValue value) const;
   uint8_t m_category; //!< Category of the action
   uint8_t m_actionValue; //!< Action value
@@ -765,11 +674,11 @@ public:
    * \return The TypeId.
    */
   static TypeId GetTypeId (void);
-  TypeId GetInstanceTypeId (void) const;
-  void Print (std::ostream &os) const;
-  uint32_t GetSerializedSize (void) const;
-  void Serialize (Buffer::Iterator start) const;
-  uint32_t Deserialize (Buffer::Iterator start);
+  virtual TypeId GetInstanceTypeId (void) const;
+  virtual void Print (std::ostream &os) const;
+  virtual uint32_t GetSerializedSize (void) const;
+  virtual void Serialize (Buffer::Iterator start) const;
+  virtual uint32_t Deserialize (Buffer::Iterator start);
 
   /**
    * Enable delayed Block ACK.
@@ -873,7 +782,7 @@ private:
    */
   void SetStartingSequenceControl (uint16_t seqControl);
 
-  uint8_t m_dialogToken;   //!< Not used for now
+  uint8_t m_dialogToken;   /* Not used for now */
   uint8_t m_amsduSupport;  //!< Flag if A-MSDU is supported
   uint8_t m_policy;        //!< Block ACK policy
   uint8_t m_tid;           //!< Traffic ID
@@ -897,11 +806,11 @@ public:
    * \return The TypeId.
    */
   static TypeId GetTypeId (void);
-  TypeId GetInstanceTypeId (void) const;
-  void Print (std::ostream &os) const;
-  uint32_t GetSerializedSize (void) const;
-  void Serialize (Buffer::Iterator start) const;
-  uint32_t Deserialize (Buffer::Iterator start);
+  virtual TypeId GetInstanceTypeId (void) const;
+  virtual void Print (std::ostream &os) const;
+  virtual uint32_t GetSerializedSize (void) const;
+  virtual void Serialize (Buffer::Iterator start) const;
+  virtual uint32_t Deserialize (Buffer::Iterator start);
 
   /**
    * Enable delayed Block ACK.
@@ -994,7 +903,7 @@ private:
    */
   void SetParameterSet (uint16_t params);
 
-  uint8_t m_dialogToken;   //!< Not used for now
+  uint8_t m_dialogToken;   /* Not used for now */
   StatusCode m_code;       //!< Status code
   uint8_t m_amsduSupport;  //!< Flag if A-MSDU is supported
   uint8_t m_policy;        //!< Block ACK policy
@@ -1019,11 +928,11 @@ public:
    */
   static TypeId GetTypeId (void);
   // Inherited
-  TypeId GetInstanceTypeId (void) const;
-  void Print (std::ostream &os) const;
-  uint32_t GetSerializedSize (void) const;
-  void Serialize (Buffer::Iterator start) const;
-  uint32_t Deserialize (Buffer::Iterator start);
+  virtual TypeId GetInstanceTypeId (void) const;
+  virtual void Print (std::ostream &os) const;
+  virtual uint32_t GetSerializedSize (void) const;
+  virtual void Serialize (Buffer::Iterator start) const;
+  virtual uint32_t Deserialize (Buffer::Iterator start);
 
   /**
    * Check if the initiator bit in the DELBA is setted.
@@ -1053,7 +962,6 @@ public:
    */
   void SetByRecipient (void);
 
-
 private:
   /**
    * Return the raw parameter set.
@@ -1068,9 +976,9 @@ private:
    */
   void SetParameterSet (uint16_t params);
 
-  uint16_t m_initiator; //!< initiator
+  uint16_t m_initiator;
   uint16_t m_tid; //!< Traffic ID
-  uint16_t m_reasonCode; //!< Not used for now. Always set to 1: "Unspecified reason"
+  uint16_t m_reasonCode; /* Not used for now. Always set to 1: "Unspecified reason" */
 };
 
 } //namespace ns3

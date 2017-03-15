@@ -574,7 +574,6 @@ RrcConnectionReconfigurationTestCase::DoRun (void)
 
   msg.radioResourceConfigDedicated = CreateRadioResourceConfigDedicated ();
 
-  msg.haveNonCriticalExtension = false; //Danilo
   RrcConnectionReconfigurationHeader source;
   source.SetMessage (msg);
 
@@ -947,7 +946,6 @@ MeasurementReportTestCase::DoRun (void)
   mResEutra.cgiInfo.trackingAreaCode = 5;
   msg.measResults.measResultListEutra.push_back (mResEutra);
 
-  msg.measResults.haveScellsMeas = false;
 
   MeasurementReportHeader source;
   source.SetMessage (msg);

@@ -30,7 +30,6 @@
 #include "ipv6-interface-address.h"
 #include "ipv6.h"
 #include "ns3/output-stream-wrapper.h"
-#include "ns3/nstime.h"
 
 namespace ns3 {
 
@@ -192,11 +191,9 @@ public:
   /**
    * \brief Print the Routing Table entries
    *
-   * \param stream The ostream the Routing table is printed to
-   * \param unit The time unit to be used in the report
+   * \param stream the ostream the Routing table is printed to
    */
-  virtual void PrintRoutingTable (Ptr<OutputStreamWrapper> stream, Time::Unit unit = Time::S) const = 0;
-
+  virtual void PrintRoutingTable (Ptr<OutputStreamWrapper> stream) const = 0;
 };
 
 } // namespace ns3

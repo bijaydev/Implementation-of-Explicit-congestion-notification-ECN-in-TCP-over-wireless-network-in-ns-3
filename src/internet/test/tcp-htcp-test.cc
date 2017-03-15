@@ -31,30 +31,16 @@
 #include "ns3/tcp-socket-base.h"
 #include "ns3/tcp-htcp.h"
 
-using namespace ns3;
+namespace ns3 {
 
 NS_LOG_COMPONENT_DEFINE ("TcpHtcpTestSuite");
 
 /**
- * \ingroup internet-test
- * \ingroup tests
- *
  * \brief Testing the congestion avoidance increment on TcpHtcp
  */
 class TcpHtcpIncrementTest : public TestCase
 {
 public:
-  /**
-   * \brief Constructor.
-   * \param cWnd Congestion window.
-   * \param segmentSize Segment size.
-   * \param segmentsAcked Segments already ACKed.
-   * \param lastCongestion Last congestion time.
-   * \param firstAck First ACK time.
-   * \param secondAck Second ACK time.
-   * \param expectedCwnd Expected cWnd.
-   * \param name Test description.
-   */
   TcpHtcpIncrementTest (uint32_t cWnd, uint32_t segmentSize,
                      uint32_t segmentsAcked, Time lastCongestion, Time firstAck,
                      Time secondAck, uint32_t expectedCwnd, const std::string &name);
@@ -62,14 +48,14 @@ public:
 private:
   virtual void DoRun (void);
 
-  uint32_t m_cWnd;        //!< Congestion window.
-  uint32_t m_segmentSize; //!< Segment size.
-  uint32_t m_segmentsAcked; //!< Segments already ACKed.
-  Time m_lastCongestion;  //!< Last congestion time.
-  Time m_firstAck;        //!< First ACK time.
-  Time m_secondAck;       //!< Second ACK time.
-  uint32_t m_expectedCwnd;  //!< Expected cWnd.
-  Ptr<TcpSocketState> m_state;  //!< TCP socket state.
+  uint32_t m_cWnd;
+  uint32_t m_segmentSize;
+  uint32_t m_segmentsAcked;
+  Time m_lastCongestion;
+  Time m_firstAck;
+  Time m_secondAck;
+  uint32_t m_expectedCwnd;
+  Ptr<TcpSocketState> m_state;
 };
 
 TcpHtcpIncrementTest::TcpHtcpIncrementTest (uint32_t cWnd, uint32_t segmentSize,
@@ -126,24 +112,18 @@ TcpHtcpIncrementTest::DoRun ()
   Simulator::Destroy ();
 }
 
-/**
- * \ingroup internet-test
- * \ingroup tests
- *
- * \brief TCP Htcp TestSuite.
- *
- * The following tests simulate conditions after a congestion event and
+/* The following tests simulate conditions after a congestion event and 
  * return to 1/2 ssthresh. After that, two acks are scheduled and the 
  * value of the cWnd is compared at the end of the event.
  * The values in each test have been chosen randomly. The first test 
  * simulates receiving acks for 38 packets with segmentSize=536, 
  * the second one receives ack for 100 packets with segmentSize=1 and
  * the third one receives ack for 50 segment with segmentSize=1446. 
- * The cWnd values of 20383, 40 and 76671 have been
- * calculated manually from the algorithm.
+ * The resulting cWnd values of 20383, 40 and 76671 have been
+ * calculated by hand from the algorithm for their expected values.
  */
 
-class TcpHtcpTestSuite : public TestSuite
+static class TcpHtcpTestSuite : public TestSuite
 {
 public:
   TcpHtcpTestSuite ()
@@ -164,7 +144,6 @@ public:
                              76671,"TcpHtcp increment test on cWnd "), TestCase::QUICK);
 
   }
-};
+} g_TcpHtcpTest;
 
-static TcpHtcpTestSuite g_TcpHtcpTest; //!< Static variable for test initialization
-
+} // namespace ns3

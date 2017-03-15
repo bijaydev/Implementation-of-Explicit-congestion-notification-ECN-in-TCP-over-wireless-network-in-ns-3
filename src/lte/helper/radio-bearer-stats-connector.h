@@ -40,9 +40,9 @@ class RadioBearerStatsCalculator;
  * \ingroup lte
  *
  * This class is very useful when user needs to collect
- * statistics from PDCP and RLC. It automatically connects
+ * statistics from PDCD and RLC. It automatically connects
  * RadioBearerStatsCalculator to appropriate trace sinks.
- * Usually user does not use this class. All he/she needs
+ * Usually user do not use this class. All he/she needs to
  * to do is to call: LteHelper::EnablePdcpTraces() and/or
  * LteHelper::EnableRlcTraces().
  */

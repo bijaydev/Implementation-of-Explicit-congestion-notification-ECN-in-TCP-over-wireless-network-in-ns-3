@@ -170,7 +170,7 @@ public:
 
 
 protected:
-  ObjectFactory m_mac; ///< MAC object
+  ObjectFactory m_mac;
 
 
 private:
@@ -180,22 +180,16 @@ private:
    * This method implements the pure virtual method defined in \ref ns3::WifiMacHelper.
    */
   virtual Ptr<WifiMac> Create (void) const;
-  /**
-   * Setup function
-   * \param mac the wifi MAC
-   * \param ac the access category
-   * \param edcaAttrName the EDCA attribute name (VO_EdcaTxopN, VI_EdcaTxopN, BE_EdcaTxopN, BK_EdcaTxopN)
-   */
-  void Setup (Ptr<WifiMac> mac, enum AcIndex ac, std::string edcaAttrName) const;
+  void Setup (Ptr<WifiMac> mac, enum AcIndex ac, std::string dcaAttrName) const;
 
-  std::map<AcIndex, ObjectFactory> m_msduAggregators; ///< A-MSDU aggregators
-  std::map<AcIndex, ObjectFactory> m_mpduAggregators; ///< A-MPDU aggregators
+  std::map<AcIndex, ObjectFactory> m_msduAggregators;
+  std::map<AcIndex, ObjectFactory> m_mpduAggregators;
   /*
    * Next maps contain, for every access category, the values for
    * block ack threshold and block ack inactivity timeout.
    */
-  std::map<AcIndex, uint8_t> m_bAckThresholds; ///< Block ACK thresholds
-  std::map<AcIndex, uint16_t> m_bAckInactivityTimeouts; ///< Block ACK inactivity timeouts
+  std::map<AcIndex, uint8_t> m_bAckThresholds;
+  std::map<AcIndex, uint16_t> m_bAckInactivityTimeouts;
 };
 
 } //namespace ns3

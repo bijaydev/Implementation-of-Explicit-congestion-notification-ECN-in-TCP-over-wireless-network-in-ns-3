@@ -33,28 +33,18 @@ using namespace ns3;
 
 NS_LOG_COMPONENT_DEFINE ("lr-wpan-collision-test");
 
-/**
- * \ingroup lr-wpan-test
- * \ingroup tests
- *
- * \brief LrWpan Collision Test
- */
+// This is an example TestCase.
 class LrWpanCollisionTestCase : public TestCase
 {
 public:
   LrWpanCollisionTestCase ();
   virtual ~LrWpanCollisionTestCase ();
 
-  /**
-   * \brief Function called when DataIndication is hit.
-   * \param params The MCPS params.
-   * \param p The packet.
-   */
-   void DataIndication (McpsDataIndicationParams params, Ptr<Packet> p);
+  void DataIndication (McpsDataIndicationParams params, Ptr<Packet> p);
 private:
   virtual void DoRun (void);
 
-  uint8_t m_rxPackets; //!< Rx packets counter.
+  uint8_t m_rxPackets;
 };
 
 LrWpanCollisionTestCase::LrWpanCollisionTestCase ()
@@ -224,12 +214,7 @@ LrWpanCollisionTestCase::DoRun (void)
   Simulator::Destroy ();
 }
 
-/**
- * \ingroup lr-wpan-test
- * \ingroup tests
- *
- * \brief LrWpan Collision TestSuite
- */
+// ==============================================================================
 class LrWpanCollisionTestSuite : public TestSuite
 {
 public:
@@ -242,4 +227,4 @@ LrWpanCollisionTestSuite::LrWpanCollisionTestSuite ()
   AddTestCase (new LrWpanCollisionTestCase, TestCase::QUICK);
 }
 
-static LrWpanCollisionTestSuite g_lrWpanCollisionTestSuite; //!< Static variable for test initialization
+static LrWpanCollisionTestSuite g_lrWpanCollisionTestSuite;

@@ -41,9 +41,9 @@ public:
   LteRlcSpecificLteMacSapUser (LteRlc* rlc);
 
   // Interface implemented from LteMacSapUser
-  virtual void NotifyTxOpportunity (uint32_t bytes, uint8_t layer, uint8_t harqId, uint8_t componentCarrierId, uint16_t rnti, uint8_t lcid);
+  virtual void NotifyTxOpportunity (uint32_t bytes, uint8_t layer, uint8_t harqId);
   virtual void NotifyHarqDeliveryFailure ();
-  virtual void ReceivePdu (Ptr<Packet> p, uint16_t rnti, uint8_t lcid);
+  virtual void ReceivePdu (Ptr<Packet> p);
 
 private:
   LteRlcSpecificLteMacSapUser ();
@@ -60,9 +60,9 @@ LteRlcSpecificLteMacSapUser::LteRlcSpecificLteMacSapUser ()
 }
 
 void
-LteRlcSpecificLteMacSapUser::NotifyTxOpportunity (uint32_t bytes, uint8_t layer, uint8_t harqId, uint8_t componentCarrierId, uint16_t rnti, uint8_t lcid)
+LteRlcSpecificLteMacSapUser::NotifyTxOpportunity (uint32_t bytes, uint8_t layer, uint8_t harqId)
 {
-  m_rlc->DoNotifyTxOpportunity (bytes, layer, harqId, componentCarrierId, rnti, lcid);
+  m_rlc->DoNotifyTxOpportunity (bytes, layer, harqId);
 }
 
 void
@@ -72,9 +72,9 @@ LteRlcSpecificLteMacSapUser::NotifyHarqDeliveryFailure ()
 }
 
 void
-LteRlcSpecificLteMacSapUser::ReceivePdu (Ptr<Packet> p, uint16_t rnti, uint8_t lcid)
+LteRlcSpecificLteMacSapUser::ReceivePdu (Ptr<Packet> p)
 {
-  m_rlc->DoReceivePdu (p, rnti, lcid);
+  m_rlc->DoReceivePdu (p);
 }
 
 
@@ -213,7 +213,7 @@ LteRlcSm::DoTransmitPdcpPdu (Ptr<Packet> p)
 }
 
 void
-LteRlcSm::DoReceivePdu (Ptr<Packet> p, uint16_t rnti, uint8_t lcid)
+LteRlcSm::DoReceivePdu (Ptr<Packet> p)
 {
   NS_LOG_FUNCTION (this << p);
   // RLC Performance evaluation
@@ -230,7 +230,7 @@ LteRlcSm::DoReceivePdu (Ptr<Packet> p, uint16_t rnti, uint8_t lcid)
 }
 
 void
-LteRlcSm::DoNotifyTxOpportunity (uint32_t bytes, uint8_t layer, uint8_t harqId, uint8_t componentCarrierId, uint16_t rnti, uint8_t lcid)
+LteRlcSm::DoNotifyTxOpportunity (uint32_t bytes, uint8_t layer, uint8_t harqId)
 {
   NS_LOG_FUNCTION (this << bytes);
   LteMacSapProvider::TransmitPduParameters params;
@@ -239,7 +239,6 @@ LteRlcSm::DoNotifyTxOpportunity (uint32_t bytes, uint8_t layer, uint8_t harqId, 
   params.lcid = m_lcid;
   params.layer = layer;
   params.harqProcessId = harqId;
-  params.componentCarrierId = componentCarrierId;
 
   // RLC Performance evaluation
   RlcTag tag (Simulator::Now());

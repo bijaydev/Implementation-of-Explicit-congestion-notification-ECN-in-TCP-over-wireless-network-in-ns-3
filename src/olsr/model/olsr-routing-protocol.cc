@@ -251,13 +251,13 @@ void RoutingProtocol::DoDispose ()
 }
 
 void
-RoutingProtocol::PrintRoutingTable (Ptr<OutputStreamWrapper> stream, Time::Unit unit) const
+RoutingProtocol::PrintRoutingTable (Ptr<OutputStreamWrapper> stream) const
 {
   std::ostream* os = stream->GetStream ();
 
   *os << "Node: " << m_ipv4->GetObject<Node> ()->GetId ()
-      << ", Time: " << Now ().As (unit)
-      << ", Local time: " << GetObject<Node> ()->GetLocalTime ().As (unit)
+      << ", Time: " << Now ().As (Time::S)
+      << ", Local time: " << GetObject<Node> ()->GetLocalTime ().As (Time::S)
       << ", OLSR Routing table" << std::endl;
 
   *os << "Destination\t\tNextHop\t\tInterface\tDistance\n";
@@ -283,7 +283,7 @@ RoutingProtocol::PrintRoutingTable (Ptr<OutputStreamWrapper> stream, Time::Unit 
   if (m_hnaRoutingTable->GetNRoutes () > 0)
     {
       *os << " HNA Routing Table: ";
-      m_hnaRoutingTable->PrintRoutingTable (stream, unit);
+      m_hnaRoutingTable->PrintRoutingTable (stream);
     }
   else
     {
@@ -1981,8 +1981,9 @@ RoutingProtocol::LinkSensing (const olsr::MessageHeader &msg,
         case OLSR_LOST_LINK:
           linkTypeName = "LOST_LINK";
           break;
+          /*  no default, since lt must be in 0..3, covered above
         default: linkTypeName = "(invalid value!)";
-          
+          */
         }
 
       const char *neighborTypeName;

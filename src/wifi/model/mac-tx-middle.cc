@@ -21,23 +21,19 @@
  *          Ghada Badawy <gbadawy@gmail.com>
  */
 
+#include "ns3/assert.h"
 #include "mac-tx-middle.h"
 #include "wifi-mac-header.h"
-#include "ns3/log.h"
 
 namespace ns3 {
-
-NS_LOG_COMPONENT_DEFINE ("MacTxMiddle");
 
 MacTxMiddle::MacTxMiddle ()
   : m_sequence (0)
 {
-  NS_LOG_FUNCTION (this);
 }
 
 MacTxMiddle::~MacTxMiddle ()
 {
-  NS_LOG_FUNCTION (this);
   for (std::map<Mac48Address,uint16_t*>::iterator i = m_qosSequences.begin (); i != m_qosSequences.end (); i++)
     {
       delete [] i->second;
@@ -45,9 +41,8 @@ MacTxMiddle::~MacTxMiddle ()
 }
 
 uint16_t
-MacTxMiddle::GetNextSequenceNumberFor (const WifiMacHeader *hdr)
+MacTxMiddle::GetNextSequenceNumberfor (const WifiMacHeader *hdr)
 {
-  NS_LOG_FUNCTION (this);
   uint16_t retval;
   if (hdr->IsQosData ()
       && !hdr->GetAddr1 ().IsGroup ())
@@ -84,9 +79,8 @@ MacTxMiddle::GetNextSequenceNumberFor (const WifiMacHeader *hdr)
 }
 
 uint16_t
-MacTxMiddle::PeekNextSequenceNumberFor (const WifiMacHeader *hdr)
+MacTxMiddle::PeekNextSequenceNumberfor (const WifiMacHeader *hdr)
 {
-  NS_LOG_FUNCTION (this);
   uint16_t retval;
   if (hdr->IsQosData ()
       && !hdr->GetAddr1 ().IsGroup ())
@@ -113,7 +107,6 @@ MacTxMiddle::PeekNextSequenceNumberFor (const WifiMacHeader *hdr)
 uint16_t
 MacTxMiddle::GetNextSeqNumberByTidAndAddress (uint8_t tid, Mac48Address addr) const
 {
-  NS_LOG_FUNCTION (this);
   NS_ASSERT (tid < 16);
   uint16_t seq = 0;
   std::map <Mac48Address,uint16_t*>::const_iterator it = m_qosSequences.find (addr);

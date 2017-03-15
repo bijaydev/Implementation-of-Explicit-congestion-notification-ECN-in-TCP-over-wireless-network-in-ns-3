@@ -124,7 +124,7 @@ LteRlcUm::DoTransmitPdcpPdu (Ptr<Packet> p)
  */
 
 void
-LteRlcUm::DoNotifyTxOpportunity (uint32_t bytes, uint8_t layer, uint8_t harqId, uint8_t componentCarrierId, uint16_t rnti, uint8_t lcid)
+LteRlcUm::DoNotifyTxOpportunity (uint32_t bytes, uint8_t layer, uint8_t harqId)
 {
   NS_LOG_FUNCTION (this << m_rnti << (uint32_t) m_lcid << bytes);
 
@@ -389,7 +389,6 @@ LteRlcUm::DoNotifyTxOpportunity (uint32_t bytes, uint8_t layer, uint8_t harqId, 
   params.lcid = m_lcid;
   params.layer = layer;
   params.harqProcessId = harqId;
-  params.componentCarrierId = componentCarrierId;
 
   m_macSapProvider->TransmitPdu (params);
 
@@ -407,7 +406,7 @@ LteRlcUm::DoNotifyHarqDeliveryFailure ()
 }
 
 void
-LteRlcUm::DoReceivePdu (Ptr<Packet> p, uint16_t rnti, uint8_t lcid)
+LteRlcUm::DoReceivePdu (Ptr<Packet> p)
 {
   NS_LOG_FUNCTION (this << m_rnti << (uint32_t) m_lcid << p->GetSize ());
 

@@ -482,15 +482,15 @@ void Rip::SetIpv4 (Ptr<Ipv4> ipv4)
     }
 }
 
-void Rip::PrintRoutingTable (Ptr<OutputStreamWrapper> stream, Time::Unit unit) const
+void Rip::PrintRoutingTable (Ptr<OutputStreamWrapper> stream) const
 {
   NS_LOG_FUNCTION (this << stream);
 
   std::ostream* os = stream->GetStream ();
 
   *os << "Node: " << m_ipv4->GetObject<Node> ()->GetId ()
-      << ", Time: " << Now().As (unit)
-      << ", Local time: " << GetObject<Node> ()->GetLocalTime ().As (unit)
+      << ", Time: " << Now().As (Time::S)
+      << ", Local time: " << GetObject<Node> ()->GetLocalTime ().As (Time::S)
       << ", IPv4 RIP table" << std::endl;
 
   if (!m_routes.empty ())

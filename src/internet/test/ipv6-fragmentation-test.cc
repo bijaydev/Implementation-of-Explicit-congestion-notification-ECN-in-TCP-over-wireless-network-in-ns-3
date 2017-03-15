@@ -31,7 +31,9 @@
 #include "ns3/ipv6-raw-socket-factory.h"
 #include "ns3/udp-socket-factory.h"
 #include "ns3/simulator.h"
+#include "error-channel.h"
 #include "ns3/simple-net-device.h"
+#include "ns3/drop-tail-queue.h"
 #include "ns3/socket.h"
 #include "ns3/udp-socket.h"
 
@@ -54,8 +56,6 @@
 #include "ns3/ipv6-l3-protocol.h"
 #include "ns3/icmpv6-l4-protocol.h"
 #include "ns3/traffic-control-layer.h"
-#include "ns3/internet-stack-helper.h"
-#include "ns3/error-channel.h"
 
 #include <string>
 #include <limits>
@@ -65,20 +65,13 @@ using namespace ns3;
 
 class UdpSocketImpl;
 
-/**
- * \ingroup internet-test
- * \ingroup tests
- *
- * \brief Tag used in IPv6 Fragmentation Test
- */
+/* ----------------------------------------------------------------------------------
+ * Tag
+ --------------------------------------------------------------------------------- */
 class IPv6TestTag : public Tag {
 private:
-  uint64_t token; //!< Token carried by the tag.
+  uint64_t token;
 public:
-  /**
-   * \brief Get the type ID.
-   * \return the object TypeId
-   */
   static TypeId GetTypeId () {
     static TypeId tid = TypeId ("ns3::IPv6TestTag").SetParent<Tag> ().AddConstructor<IPv6TestTag> ();
     return tid;
@@ -88,39 +81,55 @@ public:
   virtual void Serialize (TagBuffer buffer) const { buffer.WriteU64 (token); }
   virtual void Deserialize (TagBuffer buffer) { token = buffer.ReadU64 (); }
   virtual void Print (std::ostream &os) const { os << "token=" << token; }
-  /**
-   * \brief Set the token.
-   * \param token The token.
-   */
-  void SetToken (uint64_t token) { this->token = token; }
-  /**
-   * \brief Get the token.
-   * \returns The token.
-   */
-  uint64_t GetToken () { return token; }
+  void setToken (uint64_t token) { this->token = token; }
+  uint64_t getToken () { return token; }
 };
 
+static void
+AddInternetStack (Ptr<Node> node)
+{
+  //IPV6
+  Ptr<Ipv6L3Protocol> ipv6 = CreateObject<Ipv6L3Protocol> ();
 
-/**
- * \ingroup internet-test
- * \ingroup tests
- *
- * \brief IPv6 Fragmentation Test
- */
+  //Routing for Ipv6
+  Ptr<Ipv6ListRouting> ipv6Routing = CreateObject<Ipv6ListRouting> ();
+  ipv6->SetRoutingProtocol (ipv6Routing);
+  Ptr<Ipv6StaticRouting> ipv6staticRouting = CreateObject<Ipv6StaticRouting> ();
+  ipv6Routing->AddRoutingProtocol (ipv6staticRouting, 0);
+  node->AggregateObject (ipv6);
+
+  //ICMPv6
+  Ptr<Icmpv6L4Protocol> icmp6 = CreateObject<Icmpv6L4Protocol> ();
+  node->AggregateObject (icmp6);
+
+  //Ipv6 Extensions
+  ipv6->RegisterExtensions ();
+  ipv6->RegisterOptions ();
+
+  //UDP
+  Ptr<UdpL4Protocol> udp = CreateObject<UdpL4Protocol> ();
+  node->AggregateObject (udp);
+
+  // Traffic Control
+  Ptr<TrafficControlLayer> tc = CreateObject<TrafficControlLayer> ();
+  node->AggregateObject (tc);
+}
+
+
 class Ipv6FragmentationTest : public TestCase
 {
-  Ptr<Packet> m_sentPacketClient;      //!< Packet sent by client.
-  Ptr<Packet> m_receivedPacketClient;  //!< Packet received by client.
-  Ptr<Packet> m_receivedPacketServer;  //!< Packet received by server.
+  Ptr<Packet> m_sentPacketClient;
+  Ptr<Packet> m_receivedPacketClient;
+  Ptr<Packet> m_receivedPacketServer;
 
 
-  Ptr<Socket> m_socketServer;   //!< Server socket.
-  Ptr<Socket> m_socketClient;   //!< Client socket.
-  uint32_t m_dataSize;    //!< Data size.
-  uint8_t *m_data;        //!< Data.
-  uint32_t m_size;        //!< packet size.
-  uint8_t m_icmpType;     //!< ICMP type.
-  uint8_t m_icmpCode;     //!< ICMP code.
+  Ptr<Socket> m_socketServer;
+  Ptr<Socket> m_socketClient;
+  uint32_t m_dataSize;
+  uint8_t *m_data;
+  uint32_t m_size;
+  uint8_t m_icmpType;
+  uint8_t m_icmpCode;
 
 public:
   virtual void DoRun (void);
@@ -128,54 +137,18 @@ public:
   ~Ipv6FragmentationTest ();
 
   // server part
-
-  /**
-   * \brief Start the server.
-   * \param ServerNode The server.
-   */
   void StartServer (Ptr<Node> ServerNode);
-  /**
-   * \brief Handle incoming packets.
-   * \param socket The receiving socket.
-   */
   void HandleReadServer (Ptr<Socket> socket);
 
   // client part
-
-  /**
-   * \brief Start the client.
-   * \param ClientNode The client.
-   */
   void StartClient (Ptr<Node> ClientNode);
-  /**
-   * \brief Handle incoming packets.
-   * \param socket The receiving socket.
-   */
   void HandleReadClient (Ptr<Socket> socket);
-  /**
-   * \brief Handle incoming ICMP packets.
-   * \param icmpSource The ICMP sender.
-   * \param icmpTtl The ICMP TTL.
-   * \param icmpType The ICMP Type.
-   * \param icmpCode The ICMP Code.
-   * \param icmpInfo The ICMP Info.
-   */
   void HandleReadIcmpClient (Ipv6Address icmpSource, uint8_t icmpTtl, uint8_t icmpType,
-                             uint8_t icmpCode, uint32_t icmpInfo);
+                             uint8_t icmpCode,uint32_t icmpInfo);
 
-  /**
-   * \brief Set the packet fill.
-   * \param fill The fill.
-   * \param fillSize The fill size.
-   * \param dataSize The packet size.
-   */
   void SetFill (uint8_t *fill, uint32_t fillSize, uint32_t dataSize);
-
-  /**
-   * \brief Send a packet.
-   * \returns The sent packet.
-   */
   Ptr<Packet> SendClient (void);
+
 };
 
 
@@ -185,9 +158,6 @@ Ipv6FragmentationTest::Ipv6FragmentationTest ()
   m_socketServer = 0;
   m_data = 0;
   m_dataSize = 0;
-  m_size = 0;
-  m_icmpType = 0;
-  m_icmpCode = 0;
 }
 
 Ipv6FragmentationTest::~Ipv6FragmentationTest ()
@@ -311,7 +281,7 @@ Ptr<Packet> Ipv6FragmentationTest::SendClient (void)
       p = Create<Packet> (m_size);
     }
   IPv6TestTag tag;
-  tag.SetToken (42);
+  tag.setToken (42);
   p->AddPacketTag (tag);
   p->AddByteTag (tag);
 
@@ -325,12 +295,9 @@ Ipv6FragmentationTest::DoRun (void)
 {
   // Create topology
 
-  InternetStackHelper internet;
-  internet.SetIpv4StackInstall (false);
-
   // Receiver Node
   Ptr<Node> serverNode = CreateObject<Node> ();
-  internet.Install (serverNode);
+  AddInternetStack (serverNode);
   Ptr<SimpleNetDevice> serverDev;
   Ptr<BinaryErrorModel> serverDevErrorModel = CreateObject<BinaryErrorModel> ();
   {
@@ -350,7 +317,7 @@ Ipv6FragmentationTest::DoRun (void)
 
   // Sender Node
   Ptr<Node> clientNode = CreateObject<Node> ();
-  internet.Install (clientNode);
+  AddInternetStack (clientNode);
   Ptr<SimpleNetDevice> clientDev;
   Ptr<BinaryErrorModel> clientDevErrorModel = CreateObject<BinaryErrorModel> ();
   {
@@ -489,7 +456,7 @@ Ipv6FragmentationTest::DoRun (void)
       bool found = m_receivedPacketServer->PeekPacketTag (packetTag);
 
       NS_TEST_EXPECT_MSG_EQ (found, true, "PacketTag not found");
-      NS_TEST_EXPECT_MSG_EQ (packetTag.GetToken (), 42, "PacketTag value not correct");
+      NS_TEST_EXPECT_MSG_EQ (packetTag.getToken (), 42, "PacketTag value not correct");
 
       ByteTagIterator iter = m_receivedPacketServer->GetByteTagIterator ();
 
@@ -514,7 +481,7 @@ Ipv6FragmentationTest::DoRun (void)
           IPv6TestTag *byteTag = dynamic_cast<IPv6TestTag *> (item.GetTypeId ().GetConstructor () ());
           NS_TEST_EXPECT_MSG_NE (byteTag, 0, "ByteTag not found");
           item.GetTag (*byteTag);
-          NS_TEST_EXPECT_MSG_EQ (byteTag->GetToken (), 42, "ByteTag value not correct");
+          NS_TEST_EXPECT_MSG_EQ (byteTag->getToken (), 42, "ByteTag value not correct");
           delete byteTag;
         }
       NS_TEST_EXPECT_MSG_EQ (end, m_receivedPacketServer->GetSize (), "trivial");
@@ -522,14 +489,7 @@ Ipv6FragmentationTest::DoRun (void)
 
   Simulator::Destroy ();
 }
-
-
-/**
- * \ingroup internet-test
- * \ingroup tests
- *
- * \brief IPv6 Fragmentation TestSuite
- */
+//-----------------------------------------------------------------------------
 class Ipv6FragmentationTestSuite : public TestSuite
 {
 public:
@@ -537,7 +497,4 @@ public:
   {
     AddTestCase (new Ipv6FragmentationTest, TestCase::QUICK);
   }
-};
-
-static Ipv6FragmentationTestSuite g_ipv6fragmentationTestSuite; //!< Static variable for test initialization
-
+} g_ipv6fragmentationTestSuite;

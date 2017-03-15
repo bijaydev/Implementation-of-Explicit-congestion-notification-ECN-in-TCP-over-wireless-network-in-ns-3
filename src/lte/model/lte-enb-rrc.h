@@ -18,9 +18,6 @@
  * Authors: Nicola Baldo <nbaldo@cttc.es>
  *          Marco Miozzo <mmiozzo@cttc.es>
  *          Manuel Requena <manuel.requena@cttc.es> 
- * Modified by:
- *          Danilo Abrignani <danilo.abrignani@unibo.it> (Carrier Aggregation - GSoC 2015)
- *          Biljana Bojovic <biljana.bojovic@cttc.es> (Carrier Aggregation)
  */
 
 #ifndef LTE_ENB_RRC_H
@@ -39,20 +36,13 @@
 #include <ns3/epc-x2-sap.h>
 #include <ns3/epc-enb-s1-sap.h>
 #include <ns3/lte-handover-management-sap.h>
-#include <ns3/lte-ccm-rrc-sap.h>
 #include <ns3/lte-enb-cphy-sap.h>
 #include <ns3/lte-rrc-sap.h>
 #include <ns3/lte-anr-sap.h>
 #include <ns3/lte-ffr-rrc-sap.h>
-#include <ns3/lte-rlc.h>
 
 #include <map>
 #include <set>
-#include <ns3/component-carrier-enb.h>
-#include <vector>
-
-#define MIN_NO_CC 1
-#define MAX_NO_CC 5 // this is the maximum number of carrier components allowed by 3GPP up to R13
 
 namespace ns3 {
 
@@ -323,9 +313,9 @@ public:
    * \param [in] oldState
    * \param [in] newState
    */
-  typedef void (*StateTracedCallback)
-    (const uint64_t imsi, const uint16_t cellId, const uint16_t rnti,
-    const State oldState, const State newState);
+  typedef void (* StateTracedCallback)
+    (uint64_t imsi, uint16_t cellId, uint16_t rnti,
+     State oldState, State newState);
 
 private:
 
@@ -358,13 +348,6 @@ private:
    * current configuration
    */
   LteRrcSap::RrcConnectionReconfiguration BuildRrcConnectionReconfiguration ();
-
-  /** 
-   * 
-   * \return an NonCriticalExtensionConfiguration struct built based on the
-   * current configuration
-   */
-  LteRrcSap::NonCriticalExtensionConfiguration BuildNonCriticalExtentionConfigurationCa ();
 
   /** 
    * 
@@ -514,11 +497,6 @@ private:
    */
   EventId m_handoverLeavingTimeout;
 
-  /// Define if the Carrier Aggregation was already configure for the current UE on not
-  bool m_caSupportConfigured;
-
-  bool m_pendingStartDataRadioBearers;
-
 }; // end of `class UeManager`
 
 
@@ -539,7 +517,6 @@ class LteEnbRrc : public Object
   friend class MemberEpcEnbS1SapUser<LteEnbRrc>;
   friend class EpcX2SpecificEpcX2SapUser<LteEnbRrc>;
   friend class UeManager;
-  friend class MemberLteCcmRrcSapUser<LteEnbRrc>;
 
 public:
   /**
@@ -559,6 +536,7 @@ protected:
   virtual void DoDispose (void);
 public:
   static TypeId GetTypeId (void);
+
 
   /**
    * Set the X2 SAP this RRC should interact with
@@ -580,15 +558,12 @@ public:
    */
   void SetLteEnbCmacSapProvider (LteEnbCmacSapProvider * s);
 
-  void SetLteEnbCmacSapProvider (LteEnbCmacSapProvider * s, uint8_t pos);
-
   /** 
    * Get the CMAC SAP offered by this RRC
    * \return s the CMAC SAP User interface offered to the MAC by this RRC
    */
   LteEnbCmacSapUser* GetLteEnbCmacSapUser ();
 
-  LteEnbCmacSapUser* GetLteEnbCmacSapUser (uint8_t pos);
 
   /**
    * set the Handover Management SAP this RRC should interact with
@@ -603,21 +578,6 @@ public:
    *           handover algorithm by this RRC
    */
   LteHandoverManagementSapUser* GetLteHandoverManagementSapUser ();
-
-
-  /**
-   * set the Component Carrier Management SAP this RRC should interact with
-   *
-   * \param s the Component Carrier Management SAP Provider to be used by this RRC
-   */
-  void SetLteCcmRrcSapProvider (LteCcmRrcSapProvider * s);
-
-  /**
-   * Get the Component Carrier Management SAP offered by this RRC
-   * \return s the Component Carrier Management SAP User interface offered to the
-   *           carrier component selection algorithm by this RRC
-   */
-  LteCcmRrcSapUser* GetLteCcmRrcSapUser ();
 
 
   /**
@@ -642,7 +602,6 @@ public:
    * \param s the FFR SAP Provider to be used by this RRC
    */
   void SetLteFfrRrcSapProvider (LteFfrRrcSapProvider * s);
-  void SetLteFfrRrcSapProvider (LteFfrRrcSapProvider * s, uint8_t index);
 
   /**
    * Get the FFR SAP offered by this RRC
@@ -650,7 +609,6 @@ public:
    *           RRC
    */
   LteFfrRrcSapUser* GetLteFfrRrcSapUser ();
-  LteFfrRrcSapUser* GetLteFfrRrcSapUser (uint8_t index);
 
   /**
    * set the RRC SAP this RRC should interact with
@@ -697,16 +655,12 @@ public:
    */
   void SetLteEnbCphySapProvider (LteEnbCphySapProvider * s);
 
-  void SetLteEnbCphySapProvider (LteEnbCphySapProvider * s, uint8_t pos);
-
   /**
    *
    *
    * \return s the CPHY SAP User interface offered to the PHY by this RRC
    */
   LteEnbCphySapUser* GetLteEnbCphySapUser ();
-
-  LteEnbCphySapUser* GetLteEnbCphySapUser (uint8_t pos);
 
   /** 
    * 
@@ -765,9 +719,11 @@ public:
    *
    * \warning Raises an error when executed more than once.
    */
-  void ConfigureCell (uint16_t cellId);
-
-  void ConfigureCarriers (std::map<uint8_t, ComponentCarrier > ccPhyConf, uint16_t numberOfCarriers);
+  void ConfigureCell (uint8_t ulBandwidth,
+                      uint8_t dlBandwidth,
+                      uint16_t ulEarfcn, 
+                      uint16_t dlEarfcn,
+                      uint16_t cellId);
 
   /** 
    * set the cell id of this eNB
@@ -775,8 +731,6 @@ public:
    * \param m_cellId 
    */
   void SetCellId (uint16_t m_cellId);
-
-  void SetCellId (uint16_t m_cellId, uint8_t ccIndex);
 
   /** 
    * Enqueue an IP data packet on the proper bearer for downlink
@@ -872,8 +826,8 @@ public:
    * \param [in] cellId
    * \param [in] rnti
    */
-  typedef void (*NewUeContextTracedCallback)
-    (const uint16_t cellId, const uint16_t rnti);
+  typedef void (* NewUeContextTracedCallback)
+    (uint16_t cellId, uint16_t rnti);
 
   /**
    * TracedCallback signature for connection and handover end events.
@@ -882,9 +836,9 @@ public:
    * \param [in] cellId
    * \param [in] rnti
    */
-  typedef void (*ConnectionHandoverTracedCallback)
-    (const uint64_t imsi, const uint16_t cellId, const uint16_t rnti);
-
+  typedef void (* ConnectionHandoverTracedCallback)
+    (uint64_t imsi, uint16_t cellId, uint16_t rnti);
+  
   /**
    * TracedCallback signature for handover start events.
    *
@@ -893,9 +847,8 @@ public:
    * \param [in] rnti
    * \param [in] targetCid
    */
-  typedef void (*HandoverStartTracedCallback)
-    (const uint64_t imsi, const uint16_t cellId, const uint16_t rnti,
-     const uint16_t targetCid);
+  typedef void (* HandoverStartTracedCallback)
+    (uint64_t imsi, uint16_t cellId, uint16_t rnti, uint16_t targetCid);
 
   /**
    * TracedCallback signature for receive measurement report events.
@@ -907,10 +860,10 @@ public:
    * \todo The \c LteRrcSap::MeasurementReport argument should be
    * changed to a const reference since the argument is large.
    */
-  typedef void (*ReceiveReportTracedCallback)
-    (const uint64_t imsi, const uint16_t cellId, const uint16_t rnti,
-     const LteRrcSap::MeasurementReport report);
-
+  typedef void (* ReceiveReportTracedCallback)
+    (uint64_t imsi, uint16_t cellId, uint16_t rnti,
+     LteRrcSap::MeasurementReport report);
+  
 private:
 
 
@@ -956,8 +909,6 @@ private:
   // Handover Management SAP methods
 
   uint8_t DoAddUeMeasReportConfigForHandover (LteRrcSap::ReportConfigEutra reportConfig);
-  uint8_t DoAddUeMeasReportConfigForComponentCarrier (LteRrcSap::ReportConfigEutra reportConfig);
-
   void DoTriggerHandover (uint16_t rnti, uint16_t targetCellId);
 
   // ANR SAP methods
@@ -1042,8 +993,6 @@ public:
    */
   void SetCsgId (uint32_t csgId, bool csgIndication);
 
-  void SetNumberOfComponentCarriers (uint16_t numberOfComponentCarriers);
-
 private:
 
   /** 
@@ -1102,19 +1051,14 @@ private:
   EpcX2SapProvider* m_x2SapProvider;
 
   /// Receive API calls from the eNodeB MAC instance.
-  std::vector<LteEnbCmacSapUser*> m_cmacSapUser;
+  LteEnbCmacSapUser* m_cmacSapUser;
   /// Interface to the eNodeB MAC instance.
-  std::vector<LteEnbCmacSapProvider*> m_cmacSapProvider;
+  LteEnbCmacSapProvider* m_cmacSapProvider;
 
   /// Receive API calls from the handover algorithm instance.
   LteHandoverManagementSapUser* m_handoverManagementSapUser;
   /// Interface to the handover algorithm instance.
   LteHandoverManagementSapProvider* m_handoverManagementSapProvider;
-
-  /// Receive API calls from the LteEnbComponetCarrierManager instance.
-  LteCcmRrcSapUser* m_ccmRrcSapUser;
-  /// Interface to the LteEnbComponetCarrierManager instance.
-  LteCcmRrcSapProvider* m_ccmRrcSapProvider;
 
   /// Receive API calls from the ANR instance.
   LteAnrSapUser* m_anrSapUser;
@@ -1122,9 +1066,9 @@ private:
   LteAnrSapProvider* m_anrSapProvider;
 
   /// Receive API calls from the FFR algorithm instance.
-  std::vector<LteFfrRrcSapUser*> m_ffrRrcSapUser;
+  LteFfrRrcSapUser* m_ffrRrcSapUser;
   /// Interface to the FFR algorithm instance.
-  std::vector<LteFfrRrcSapProvider*> m_ffrRrcSapProvider;
+  LteFfrRrcSapProvider* m_ffrRrcSapProvider;
 
   /// Interface to send messages to UE over the RRC protocol.
   LteEnbRrcSapUser* m_rrcSapUser;
@@ -1139,19 +1083,19 @@ private:
   /// Interface to receive messages from core network over the S1 protocol.
   EpcEnbS1SapUser* m_s1SapUser;
 
-  /// Receive API calls from the eNodeB PHY instances.
-  std::vector<LteEnbCphySapUser*> m_cphySapUser;
-  /// Interface to the eNodeB PHY instances.
-  std::vector<LteEnbCphySapProvider*> m_cphySapProvider;
+  /// Receive API calls from the eNodeB PHY instance.
+  LteEnbCphySapUser* m_cphySapUser;
+  /// Interface to the eNodeB PHY instance.
+  LteEnbCphySapProvider* m_cphySapProvider;
 
   /// True if ConfigureCell() has been completed.
   bool m_configured;
   /// Cell identifier. Must be unique across the simulation.
   uint16_t m_cellId;
   /// Downlink E-UTRA Absolute Radio Frequency Channel Number.
-  uint32_t m_dlEarfcn;
+  uint16_t m_dlEarfcn;
   /// Uplink E-UTRA Absolute Radio Frequency Channel Number.
-  uint32_t m_ulEarfcn;
+  uint16_t m_ulEarfcn;
   /// Downlink transmission bandwidth configuration in number of Resource Blocks.
   uint16_t m_dlBandwidth;
   /// Uplink transmission bandwidth configuration in number of Resource Blocks.
@@ -1179,8 +1123,6 @@ private:
   std::set<uint8_t> m_anrMeasIds;
   /// List of measurement identities which are intended for FFR purpose.
   std::set<uint8_t> m_ffrMeasIds;
-  // List of measurement identities which are intended for component carrier management purposes.
-  std::set<uint8_t> m_componentCarrierMeasIds;
 
   struct X2uTeidInfo
   {
@@ -1307,12 +1249,6 @@ private:
    * received. Exporting IMSI, cell ID, and RNTI.
    */
   TracedCallback<uint64_t, uint16_t, uint16_t, LteRrcSap::MeasurementReport> m_recvMeasurementReportTrace;
-
-  uint16_t m_numberOfComponentCarriers;
-
-  bool m_carriersConfigured;
-
-  std::map<uint8_t, ComponentCarrier> m_componentCarrierPhyConf;
 
 }; // end of `class LteEnbRrc`
 

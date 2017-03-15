@@ -34,14 +34,10 @@
 
 using namespace ns3;
 
+using namespace ns3;
+
 NS_LOG_COMPONENT_DEFINE ("lr-wpan-energy-detection-test");
 
-/**
- * \ingroup lr-wpan-test
- * \ingroup tests
- *
- * \brief LrWpan Energy Detection Test
- */
 class LrWpanEdTestCase : public TestCase
 {
 public:
@@ -50,15 +46,10 @@ public:
 private:
   virtual void DoRun (void);
 
-  /**
-   * \brief Function called when PlmeEdConfirm is hit.
-   * \param status The PHY status.
-   * \param level The ED level.
-   */
   void PlmeEdConfirm (LrWpanPhyEnumeration status, uint8_t level);
 
-  LrWpanPhyEnumeration m_status; //!< PHY status.
-  uint8_t m_level; //!< ED level.
+  LrWpanPhyEnumeration m_status;
+  uint8_t m_level;
 };
 
 LrWpanEdTestCase::LrWpanEdTestCase ()
@@ -252,12 +243,6 @@ LrWpanEdTestCase::DoRun (void)
   Simulator::Destroy ();
 }
 
-/**
- * \ingroup lr-wpan-test
- * \ingroup tests
- *
- * \brief LrWpan Energy Detection TestSuite
- */
 class LrWpanEdTestSuite : public TestSuite
 {
 public:
@@ -270,4 +255,4 @@ LrWpanEdTestSuite::LrWpanEdTestSuite ()
   AddTestCase (new LrWpanEdTestCase, TestCase::QUICK);
 }
 
-static LrWpanEdTestSuite g_lrWpanEdTestSuite; //!< Static variable for test initialization
+static LrWpanEdTestSuite g_lrWpanEdTestSuite;
