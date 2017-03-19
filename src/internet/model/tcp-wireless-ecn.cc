@@ -42,6 +42,36 @@ TcpWirelessEcn::GetTypeId (void)
 
 
 
+uint32_t
+TcpWirelessEcn::GetSsThresh (Ptr<const TcpSocketState> state,
+                         uint32_t bytesInFlight)
+{
+  NS_LOG_FUNCTION (this << state << bytesInFlight);
+
+  if ( state->m_congState== TcpSocketState::CA_LOSS)
+  {
+      //  if ( TcpSocketBase::m_ecnState==TcpSocketBase::ECN_ECE_RCVD)
+      //  {
+       //         return std::max (2 * state->m_segmentSize, bytesInFlight / 2);
+
+       // }
+       // else
+        ///{
+
+                return state->m_ssThresh;
+
+       // }
+
+  }
+  else
+  {
+
+  return std::max (2 * state->m_segmentSize, bytesInFlight / 2);
+  }
+  
+
+}
+
 Ptr<TcpCongestionOps>
 TcpWirelessEcn::Fork (void)
 {
