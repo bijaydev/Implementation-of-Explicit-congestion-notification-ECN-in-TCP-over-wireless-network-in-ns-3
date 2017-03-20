@@ -60,11 +60,6 @@ TcpNewReno::GetTypeId (void)
     .SetParent<TcpCongestionOps> ()
     .SetGroupName ("Internet")
     .AddConstructor<TcpNewReno> ()
-    .AddAttribute ("WECN",
-                   "True to enable Wireless ECN",
-                   BooleanValue (false),
-                   MakeBooleanAccessor (&TcpNewReno::m_isWECN),
-                   MakeBooleanChecker ())
   ;
   return tid;
 }
