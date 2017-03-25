@@ -215,17 +215,17 @@ TcpNewReno::GetSsThresh (Ptr<const TcpSocketState> state,
      {
        if ( state->m_congState== TcpSocketState::CA_LOSS)
          {
-       //  if ( TcpSocketBase::m_ecnState==TcpSocketBase::ECN_ECE_RCVD)
-       //    {
-       //      return std::max (2 * state->m_segmentSize, bytesInFlight / 2);
-          // }
+         if ( state->m_ecnState==TcpSocketState::ECN_ECE_RCVD)
+           {
+             return std::max (2 * state->m_segmentSize, bytesInFlight / 2);
+           }
 
-       // else
-       //    {
+        else
+           {
 
-               return state->m_ssThresh;
+             return state->m_ssThresh;
 
-          // }
+           }
 
          }
 
