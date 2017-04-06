@@ -211,7 +211,7 @@ TcpNewReno::GetSsThresh (Ptr<const TcpSocketState> state,
 {
   NS_LOG_FUNCTION (this << state << bytesInFlight);
   
-  if (m_isWECN && state->m_congState== TcpSocketState::CA_LOSS)
+  if (m_isWECN && state->m_congState== TcpSocketState::CA_RECOVERY)
      {
        if ( state->m_ecnState==TcpSocketState::ECN_ECE_RCVD)
           {
